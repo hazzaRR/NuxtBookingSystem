@@ -4,28 +4,59 @@ const cors = require("cors");
 const pool = require("./db");
 const jwt = require('jsonwebtoken');
 const CryptoJS = require("crypto-js");
+const crykey = CryptoJS.enc.Hex.parse("000102030405060708090a0b0c0d0e0f");
+const iv = CryptoJS.enc.Hex.parse("101112131415161718191a1b1c1d1e1f");
 const bcrypt = require('bcrypt');
-const cookieParser = require('cookie-parser'); // Import cookie-parser
+const cookieParser = require('cookie-parser');
 const port = process.env.PORT || 5001;
 require('dotenv').config();
-app.use(express.json()); // => req.body
+
+
+
+app.use(express.json());
 app.use(cors({
-    origin: ["http://localhost:3000"]
-}))
+    origin: ["http://localhost:3000"],
+    credentials: true
+}));
 app.use(cookieParser());
 // app.use(express.static('public'));
 
-// Middleware for parsing request body
-// app.use(bodyParser.json());
+
+app.get('/set-cookie', (req, res) => {
+    // Set the cookie
+    res.cookie('cookieName', 'cookieValue', { maxAge: 3600000, httpOnly: true });
+  
+    console.log(req.cookies);
+    // Send a response
+    return res.json({message:'Cookie set successfully'});
+
+  });
+
+
+app.get('/auth-check', async (req, res) => {
+
+    const token = req.cookies.auth_token;
+
+    console.log(token)
+
+
+    if (!token) {
+        console.log("here")
+        res.status(403).json({message: false});
+    }
+    else{
+        res.status(200).json({message: true});
+    }
+});
 
 
 
 app.post("/register", async (req, res) => {
 
     try {
-        let {username ,email, password} = req.body;
-        // Checks all escaping inputs
+        let {username, email, password} = req.body;
 
+        console.log(username);
 
         //Returns random delay to combat against account enuneration
         // await delay(500, 1500);
@@ -34,6 +65,7 @@ app.post("/register", async (req, res) => {
         // Encrypts personal details with cryptojs
         const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
         const hashUser = CryptoJS.AES.encrypt(username, crykey,{ iv: iv }).toString();
+        
 
 
         // Searches into database based on username and email and returns status code if existing user already exists
@@ -44,7 +76,7 @@ app.post("/register", async (req, res) => {
 
         //Hashes password and inserts into database, if any error in inserting then register invalid is returned.
         const hashedPassword = await bcrypt.hash(password, 10);
-        const account = await pool.query("INSERT INTO account (username,email,password) VALUES($1, $2, $3, $4) RETURNING *", [hashUser,hashEmail,hashedPassword, secret]);
+        const account = await pool.query("INSERT INTO account (username,email,password) VALUES($1, $2, $3) RETURNING *", [hashUser,hashEmail,hashedPassword]);
         const info = await pool.query('SELECT * FROM account WHERE username = $1', [hashUser])
         if(!info.rows[0]){
             return res.status(409).json({ message: 'Register Invalid' });
@@ -53,7 +85,9 @@ app.post("/register", async (req, res) => {
         const token = jwt.sign({ id: info.rows[0].id,username:username}, process.env.SECRET_KEY, {expiresIn: '2h'});
         // const csrfToken = await generateCsrfToken(token);
 
-        res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly:true, secure:true}); // Set cookie to expire in 10 minutes
+        console.log(token);
+
+        res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
 
 
         res.status(200).json({ success: true, message: 'New user saved successfully' });
@@ -66,6 +100,8 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
+
+    let {email,password} = req.body;
 
     try {
 
@@ -121,8 +157,10 @@ app.post("/login", async (req, res) => {
         const unHashUser = bytes.toString(CryptoJS.enc.Utf8);
         const token = jwt.sign({ id: info.rows[0].id,username:unHashUser}, process.env.SECRET_KEY, {expiresIn: '2h'});
 
-        res.cookie('token', token, { maxAge: 10 * 60 * 1000, httpOnly:true, secure:true}); // Set cookie to expire in 10 minutes
-        res.json({ message: 'Worked' });
+        console.log(token);
+
+        res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
+        res.json({ message: 'Log in successful' });
 
         // const csrfToken = await generateCsrfToken(token);
         // if (csrfToken.code === 200) {

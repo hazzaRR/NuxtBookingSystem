@@ -1,7 +1,8 @@
 <template>
     <div>
 
-        <h1>Hello world</h1>
+        <NuxtLink to="/register">Register Page</NuxtLink>
+        <NuxtLink to="/login">Login Page</NuxtLink>
 
     </div>
 </template>

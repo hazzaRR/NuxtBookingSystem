@@ -3,10 +3,10 @@ require('dotenv').config();
 
 let databaseName;
 if (process.env.DATABASE === "test") {
-    databaseName = "nuxt-booking_test"
+    databaseName = "nuxt_booking_test"
 }
 else {
-    databaseName = "nuxt-booking"
+    databaseName = "nuxt_booking"
 };
 const pool = new Pool ({
     user: "postgres",
