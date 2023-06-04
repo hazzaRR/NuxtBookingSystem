@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 const pool = require("./db");
-const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
 const CryptoJS = require("crypto-js");
 const crykey = CryptoJS.enc.Hex.parse("000102030405060708090a0b0c0d0e0f");
 const iv = CryptoJS.enc.Hex.parse("101112131415161718191a1b1c1d1e1f");
@@ -10,6 +10,9 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const port = process.env.PORT || 5001;
 require('dotenv').config();
+
+
+uuidv4()
 
 
 
@@ -54,9 +57,7 @@ app.get('/auth-check', async (req, res) => {
 app.post("/register", async (req, res) => {
 
     try {
-        let {username, email, password} = req.body;
-
-        console.log(username);
+        let {email, password, firstname, surname, telephone} = req.body;
 
         //Returns random delay to combat against account enuneration
         // await delay(500, 1500);
@@ -64,33 +65,30 @@ app.post("/register", async (req, res) => {
 
         // Encrypts personal details with cryptojs
         const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
-        const hashUser = CryptoJS.AES.encrypt(username, crykey,{ iv: iv }).toString();
         
-
-
         // Searches into database based on username and email and returns status code if existing user already exists
-        const existingUser = await pool.query("SELECT * FROM account WHERE username = $1 OR email = $2", [hashUser,hashEmail]);
+        const existingUser = await pool.query("SELECT * FROM client WHERE email = $1", [hashEmail]);
         if(existingUser.rows[0]){
             return res.status(409).json({ message: 'Register Invalid' });
         }
 
         //Hashes password and inserts into database, if any error in inserting then register invalid is returned.
         const hashedPassword = await bcrypt.hash(password, 10);
-        const account = await pool.query("INSERT INTO account (username,email,password) VALUES($1, $2, $3) RETURNING *", [hashUser,hashEmail,hashedPassword]);
-        const info = await pool.query('SELECT * FROM account WHERE username = $1', [hashUser])
+        const account = await pool.query("INSERT INTO client (email,password, firstname, surname, telephone) VALUES($1, $2, $3, $4, $5) RETURNING *", [hashEmail,hashedPassword, firstname, surname, telephone]);
+        const info = await pool.query('SELECT * FROM client WHERE email = $1', [hashEmail])
         if(!info.rows[0]){
             return res.status(409).json({ message: 'Register Invalid' });
         }
-        // Generates token based on account details and then encrypts it with an expiry while generating a csrf token additionally
-        const token = jwt.sign({ id: info.rows[0].id,username:username}, process.env.SECRET_KEY, {expiresIn: '2h'});
-        // const csrfToken = await generateCsrfToken(token);
 
-        console.log(token);
+        const token = uuidv4();
+        const crsf_token = uuidv4();
+        const currentDate = new Date();
+        // Add 2 hours to the current time
+        const expiry_time = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
+        const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, info.rows[0].id, "client", crsf_token])
 
         res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
-
-
-        res.status(200).json({ success: true, message: 'New user saved successfully' });
+        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
 
     } catch (err) {
         console.error(err.message);
@@ -108,59 +106,61 @@ app.post("/login", async (req, res) => {
         //Encrypts email and then checks it against the database
         const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
 
-        const info = await pool.query('SELECT * FROM account WHERE email = $1', [hashEmail])
+        const Admininfo = await pool.query('SELECT * FROM admin WHERE username = $1', [hashEmail])
+        const Clientinfo = await pool.query('SELECT * FROM client WHERE email = $1', [hashEmail])
+        const Employeeinfo = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
 
         //Returns random delay to combat against account enuneration but is rarely needed for validate_auth_request filtering through also having delay
         // await delay(500, 1500);
         // console.log('here')
-        if(!info.rows[0]){
-            return res.status(409).json({ message: 'Error with authentication' });
+        if(!Clientinfo.rows[0] && !Admininfo.rows[0] && !Employeeinfo.rows[0]){
+            return res.status(409).json({ message: 'Error with authentication'});
         }
-
-        currentTime = new Date();
-
-        //if account is locked and still has cool down period left tell user how long they have left until they can
-        //attempt to log in again
-        if (info.rows[0].locked && (info.rows[0].locked_until > currentTime)) {
-            const remainingTime = Math.ceil((info.rows[0].locked_until - currentTime) / 1000 / 60);
-            return res.status(401).json({ message: `Account locked. Please try again in ${remainingTime} minutes.` });
-        }
-        //if account is locked and time is up unlock account and reset attempt counter
-        if (info.rows[0].locked && info.rows[0].locked_until <= currentTime) {
-            await pool.query('UPDATE account SET incorrect_attempts = 0, locked = false, locked_until = NULL WHERE email = $1', [hashEmail]);
-        }
-
         
-        const isPasswordValid = await bcrypt.compare(password, info.rows[0].password);
+        let isPasswordValid;
+        let isAdmin;
+        let isEmployee;
+        let user_id;
+        let user_type;
+        const token = uuidv4();
+        const crsf_token = uuidv4();
+        if (Clientinfo.rows[0]) {
+            isPasswordValid = await bcrypt.compare(password, Clientinfo.rows[0].password);
+            isAdmin = false;
+            isEmployee = false;
+            user_id = Clientinfo.rows[0].id;
+            user_type = 'client';
+
+        }
+        else if (Employeeinfo.rows[0]) {
+            isPasswordValid = await bcrypt.compare(password, Employeeinfo.rows[0].password);
+            isAdmin = false;
+            isEmployee = true;
+            user_id = Employeeinfo.rows[0].id;
+            user_type = 'employee';
+        }
+        else {
+            isPasswordValid = await bcrypt.compare(password, Admininfo.rows[0].password);
+            isAdmin = true;
+            isEmployee = false;
+            user_id = Admininfo.rows[0].id;
+            user_type = 'admin';
+        }
+
         // console.log(isPasswordValid)
         if (!isPasswordValid) {
-
-            if ((info.rows[0].incorrect_attempts) >= 5 && !info.rows[0].locked) {
-                await pool.query('UPDATE account SET locked = true, locked_until = NOW() + INTERVAL \'30 minutes\' WHERE email = $1', [hashEmail]);
-                return res.status(401).json({ message: 'Account locked. Please try again in 30 minutes' });
-            }
-            else if ((info.rows[0].incorrect_attempts) < 5 && !info.rows[0].locked) {
-                await pool.query('UPDATE account SET incorrect_attempts = $1 WHERE email = $2', [(info.rows[0].incorrect_attempts+1), hashEmail]);
-            }
-
-            return res.status(409).json({ message: 'Error with authentication' });
+            return res.status(409).json({ message: 'Error with authentication'});
         }
 
-        //if password was correct reset attempt count to 0
-        if (info.rows[0].incorrect_attempts !== 0) {
-            await pool.query('UPDATE account SET incorrect_attempts = 0 WHERE email = $1', [hashEmail]);
-        }
+        const currentDate = new Date();
 
+        // Add 2 hours to the current time
+        const expiry_time = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
 
-        // decrypts username for token reasons and then attaches to cookie
-        const bytes  = CryptoJS.AES.decrypt(info.rows[0].username, crykey,{ iv: iv });
-        const unHashUser = bytes.toString(CryptoJS.enc.Utf8);
-        const token = jwt.sign({ id: info.rows[0].id,username:unHashUser}, process.env.SECRET_KEY, {expiresIn: '2h'});
-
-        console.log(token);
+        const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, user_id, user_type, crsf_token])
 
         res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
-        res.json({ message: 'Log in successful' });
+        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
 
         // const csrfToken = await generateCsrfToken(token);
         // if (csrfToken.code === 200) {
