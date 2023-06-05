@@ -1,12 +1,17 @@
 <template>
     <div>
 
-        <h1>Employee dashboard</h1>
+        <h1>Admin dashboard</h1>
 
     </div>
 </template>
 
 <script setup>
+
+definePageMeta({
+    middleware: "auth"
+});
+
 
 </script>
 

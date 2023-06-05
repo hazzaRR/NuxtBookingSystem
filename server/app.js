@@ -38,18 +38,32 @@ app.get('/set-cookie', (req, res) => {
 
 app.get('/auth-check', async (req, res) => {
 
-    const token = req.cookies.auth_token;
+    const {auth_token} = req.cookies;
 
-    console.log(token)
+    console.log(req.cookies)
 
+    console.log(auth_token)
 
-    if (!token) {
-        console.log("here")
-        res.status(403).json({message: false});
+    if (!auth_token) {
+        console.log("no auth")
+        return res.status(403).json({message: "Unable to authenticate session"});
     }
-    else{
-        res.status(200).json({message: true});
+
+    const user_session = await pool.query('SELECT * FROM user_sessions WHERE session_id = $1', [auth_token]);
+
+    console.log(user_session)
+
+    if (!user_session.rows[0]) {
+        return res.status(403).json({message: "Unable to authenticate session"});
     }
+
+    if (user_session.rows[0].expiry_time < new Date()) {
+        const delete_session = await pool.query('DELETE FROM user_sessions WHERE session_id = $1', [auth_token]);
+        res.clearCookie('auth_token');
+        return res.status(403).json({message: "Unable to authenticate session"});
+    }
+
+    return res.status(200).json({message: "Authenticated", user_type: user_session.rows[0].user_type});
 });
 
 
@@ -87,7 +101,7 @@ app.post("/register", async (req, res) => {
         const expiry_time = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
         const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, info.rows[0].id, "client", crsf_token])
 
-        res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
+        res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
         res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
 
     } catch (err) {
@@ -159,8 +173,8 @@ app.post("/login", async (req, res) => {
 
         const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, user_id, user_type, crsf_token])
 
-        res.cookie('auth_token', token, { maxAge: 10 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
-        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
+        res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
+        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type});
 
         // const csrfToken = await generateCsrfToken(token);
         // if (csrfToken.code === 200) {

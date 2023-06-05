@@ -43,7 +43,17 @@ const login = async (event ) => {
 
 
         if (data.value) {
-            navigateTo('/dashboard');
+
+            if (data.value.user_type === 'admin') {
+                navigateTo('/admin');
+            }
+            else if (data.value.user_type === 'employee') {
+                navigateTo('/employee');
+            }
+            else {
+                navigateTo('/dashboard');
+            }
+            // navigateTo('/dashboard');
         }
         else {
             console.log(error.value);
