@@ -54,8 +54,6 @@ app.get('/auth-check', async (req, res) => {
     return res.status(200).json({message: "Authenticated", user_type: user_session.rows[0].user_type});
 });
 
-
-
 app.post("/register", async (req, res) => {
 
     try {
@@ -164,16 +162,6 @@ app.post("/login", async (req, res) => {
         res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
         res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type});
 
-        // const csrfToken = await generateCsrfToken(token);
-        // if (csrfToken.code === 200) {
-        //     res.cookie('token', token, { maxAge: 10 * 60 * 1000, httpOnly:true, secure:true}); // Set cookie to expire in 10 minutes
-        //     res.json({ message: 'Worked' });
-        // }
-        // else {
-        //     console.log("CSRF Token failed to be generated")
-        //     res.status(402).json({ message: 'Invalid token' });
-        // }
-
     } catch (err) {
         console.log(err);
         res.json({ message: 'Ahh error happened'})
@@ -223,6 +211,38 @@ app.post("/employee/register", async (req, res) => {
     }
 
 });
+
+
+app.post("/add-availability", async (req, res) => {
+
+    // const user = req.user;
+    const user = {
+        id: 1
+    };
+
+    try {
+        let {slots} = req.body;
+
+
+        for (let i = 0; i < slots.length; i++) {
+            
+            const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, slots[i].availabilityDate, slots[i].startTime, slots[i].endTime, true]);
+
+        };
+
+        res.json({message: "Availability Successfully added"});
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error creating user"});
+    }
+
+
+
+
+
+
+})
 
 
 

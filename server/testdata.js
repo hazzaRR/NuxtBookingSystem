@@ -154,7 +154,36 @@ const createAdmins = async (AdminObject) => {
         console.error(error);
     }
 
-}
+};
+
+const createEmployees = async (employeeObject) => {
+
+    try {
+
+        for (let employeeIndex in employeeObject.employees) {
+            let account = employeeObject.employees[employeeIndex];
+            console.log(`email: ${account.email}`);
+
+            const hashEmail = CryptoJS.AES.encrypt(account.email, crykey,{ iv: iv }).toString();
+            const existingUser = await pool.query("SELECT * FROM employee WHERE email = $1", [hashEmail]);
+            if(existingUser.rows[0]){
+                throw new Error('Email already taken');
+            }
+            const hashedPassword = await bcrypt.hash(account.password, 10);
+    
+            const createEmployee = await pool.query("INSERT INTO employee (firstname, surname, email, password, telephone) VALUES($1, $2, $3, $4, $5) RETURNING *", [account.firstname, account.surname, hashEmail, hashedPassword, account.telephone]);
+          
+        };
+
+          console.log("Employees created")
+
+          return;
+        
+    } catch (error) {
+        console.error(error);
+    }
+
+};
 
 // const accountObject = {
 //     "accounts": [
@@ -190,10 +219,37 @@ const AdminObject = {
 ]
 }
 
+const employeeObject = {
+    "employees": [
+        {
+            "firstname": "John",
+            "surname": "Doe",
+            "email": "johndoe@example.com",
+            "password": "mypassword",
+            "telephone": "1234567890"
+          },
+          {
+            "firstname": "Jane",
+            "surname": "Smith",
+            "email": "janesmith@example.com",
+            "password": "secretpass",
+            "telephone": "9876543210"
+          },
+          {
+            "firstname": "Alice",
+            "surname": "Johnson",
+            "email": "alicejohnson@example.com",
+            "password": "pass123",
+            "telephone": "5551234567"
+          }
+]
+}
+
 const main = async () => {
     try {
       await createTables();
       await createAdmins(AdminObject);
+      await createEmployees(employeeObject);
       process.exit(0);
     } catch (error) {
       console.error(error);

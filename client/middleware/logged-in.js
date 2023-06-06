@@ -12,7 +12,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         });
 
     if (!data.value) {
-        clearError();
         return
     }
 
