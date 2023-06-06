@@ -12,10 +12,6 @@ const port = process.env.PORT || 5001;
 require('dotenv').config();
 
 
-uuidv4()
-
-
-
 app.use(express.json());
 app.use(cors({
     origin: ["http://localhost:3000"],
@@ -27,10 +23,6 @@ app.use(cookieParser());
 app.get('/auth-check', async (req, res) => {
 
     const {auth_token} = req.cookies;
-
-    console.log(req.cookies)
-
-    console.log(auth_token)
 
     if (!auth_token) {
         console.log("no auth")
@@ -213,36 +205,37 @@ app.post("/employee/register", async (req, res) => {
 });
 
 
-app.post("/add-availability", async (req, res) => {
+// app.post("/add-availability", async (req, res) => {
 
-    // const user = req.user;
-    const user = {
-        id: 1
-    };
+//     // const user = req.user;
+//     const user = {
+//         id: 1
+//     };
 
-    try {
-        let {slots} = req.body;
-
-
-        for (let i = 0; i < slots.length; i++) {
-            
-            const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, slots[i].availabilityDate, slots[i].startTime, slots[i].endTime, true]);
-
-        };
-
-        res.json({message: "Availability Successfully added"});
-
-    } catch (err) {
-        console.error(err.message);
-        res.json({message:"Error creating user"});
-    }
+//     try {
+//         let {slots} = req.body;
 
 
+//         for (let i = 0; i < slots.length; i++) {
+
+//             const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, slots[i].availabilityDate, slots[i].startTime, slots[i].endTime, true]);
+
+//         };
+
+//         res.json({message: "Availability Successfully added"});
+
+//     } catch (err) {
+//         console.error(err.message);
+//         res.json({message:"Error creating user"});
+//     }
+
+// });
 
 
+const employeeRouter = require('./routes/employeeRouter');
 
 
-})
+app.use('/employee', employeeRouter);
 
 
 
