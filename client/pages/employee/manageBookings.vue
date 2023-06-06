@@ -1,8 +1,7 @@
 <template>
     <div>
 
-        <NuxtLink to="/register">Register Page</NuxtLink>
-        <NuxtLink to="/login">Login Page</NuxtLink>
+        <h1>Employee dashboard</h1>
 
         <Calendar />
 
@@ -10,9 +9,8 @@
 </template>
 
 <script setup>
-
 definePageMeta({
-    middleware: "logged-in"
+    middleware: "auth"
 });
 
 </script>

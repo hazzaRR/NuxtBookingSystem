@@ -1,7 +1,7 @@
 <template>
     <div>
 
-        <h1>welcome to the home page</h1>
+        <h1>View your Appointments</h1>
 
         <NuxtLink to="/dashboard">Dashboard</NuxtLink>
         <NuxtLink to="/dashboard/bookAppointment">Book an Appointment</NuxtLink>

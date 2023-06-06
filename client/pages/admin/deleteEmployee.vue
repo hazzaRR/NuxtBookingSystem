@@ -1,7 +1,7 @@
 <template>
     <div>
 
-        <h1>Admin dashboard</h1>
+        <h1>Delete Employee</h1>
 
         <NuxtLink to="/admin">Dashboard</NuxtLink>
         <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>

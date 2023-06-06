@@ -13,7 +13,8 @@ CREATE TABLE employee (
     firstname VARCHAR(100),
     surname VARCHAR(100),
     email VARCHAR(100) UNIQUE,
-    password VARCHAR(100)
+    password VARCHAR(100),
+    telephone VARCHAR(20)
 );
 
 CREATE TABLE client (

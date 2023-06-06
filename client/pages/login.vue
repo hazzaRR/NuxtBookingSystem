@@ -9,8 +9,6 @@
         <button class="btn" @click="login">Button</button>      
         </form>
 
-        <p>{{ email }}</p>
-
     </div>
 </template>
 

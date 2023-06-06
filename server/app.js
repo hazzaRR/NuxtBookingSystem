@@ -24,18 +24,6 @@ app.use(cors({
 app.use(cookieParser());
 // app.use(express.static('public'));
 
-
-app.get('/set-cookie', (req, res) => {
-    // Set the cookie
-    res.cookie('cookieName', 'cookieValue', { maxAge: 3600000, httpOnly: true });
-  
-    console.log(req.cookies);
-    // Send a response
-    return res.json({message:'Cookie set successfully'});
-
-  });
-
-
 app.get('/auth-check', async (req, res) => {
 
     const {auth_token} = req.cookies;
@@ -46,7 +34,7 @@ app.get('/auth-check', async (req, res) => {
 
     if (!auth_token) {
         console.log("no auth")
-        return res.status(403).json({message: "Unable to authenticate session"});
+        return res.status(401).json({message: "Unable to authenticate session"});
     }
 
     const user_session = await pool.query('SELECT * FROM user_sessions WHERE session_id = $1', [auth_token]);
@@ -81,9 +69,9 @@ app.post("/register", async (req, res) => {
         const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
         
         // Searches into database based on username and email and returns status code if existing user already exists
-        const existingUser = await pool.query("SELECT * FROM client WHERE email = $1", [hashEmail]);
+        const existingUser = await pool.query("SELECT * FROM client WHERE email = $1 UNION SELECT * FROM employee WHERE email = $1", [hashEmail]);
         if(existingUser.rows[0]){
-            return res.status(409).json({ message: 'Register Invalid' });
+            return res.status(409).json({ message: 'Register Invalid'});
         }
 
         //Hashes password and inserts into database, if any error in inserting then register invalid is returned.
@@ -191,6 +179,51 @@ app.post("/login", async (req, res) => {
         res.json({ message: 'Ahh error happened'})
     }
 });
+
+app.post("/employee/register", async (req, res) => {
+    try {
+        let {email, password, firstname, surname} = req.body;
+
+        console.log("we got here");
+
+        //Returns random delay to combat against account enuneration
+        // await delay(500, 1500);
+
+
+        // Encrypts personal details with cryptojs
+        const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
+        
+        // Searches into database based on username and email and returns status code if existing user already exists
+        const existingUser = await pool.query("SELECT * FROM client WHERE email = $1 UNION SELECT * FROM employee WHERE email = $1", [hashEmail]);
+        if(existingUser.rows[0]){
+            return res.status(409).json({ message: 'Register Invalid' });
+        }
+
+        //Hashes password and inserts into database, if any error in inserting then register invalid is returned.
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const account = await pool.query("INSERT INTO employee (email,password, firstname, surname) VALUES($1, $2, $3, $4) RETURNING *", [hashEmail,hashedPassword, firstname, surname]);
+        const info = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
+        if(!info.rows[0]){
+            return res.status(409).json({ message: 'Register Invalid' });
+        }
+
+        const token = uuidv4();
+        const crsf_token = uuidv4();
+        const currentDate = new Date();
+        // Add 2 hours to the current time
+        const expiry_time = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
+        const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, info.rows[0].id, "client", crsf_token])
+
+        res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
+        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error creating user"});
+    }
+
+});
+
 
 
 app.listen(port, () => {

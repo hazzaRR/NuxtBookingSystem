@@ -1,23 +1,31 @@
 <template>
     <div>
-        <h1 v-if="registerError">{{errorMessage}}</h1>
-        <form>
-            <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email" required/>
-            <input type="password" placeholder="password" class="input input-bordered w-full max-w-xs" v-model="password"  required/>
-            <input type="text" placeholder="firstname" class="input input-bordered w-full max-w-xs" v-model="firstname" required/>
-            <input type="text" placeholder="surname" class="input input-bordered w-full max-w-xs" v-model="surname" required/>
-            <input type="text" placeholder="telephone" class="input input-bordered w-full max-w-xs" v-model="telephone" required />
-            <button class="btn" @click="register">Button</button>      
-        </form>
+
+        <NuxtLink to="/admin">Dashboard</NuxtLink>
+        <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
+        <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
+
+    <h1 v-if="registerSucessful">Employee Created Successfully</h1>
+    <h1 v-if="registerError">{{errorMessage}}</h1>
 
 
-        <p>{{ email }}</p>
+
+    <form>
+        <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email" required/>
+        <input type="password" placeholder="password" class="input input-bordered w-full max-w-xs" v-model="password"  required/>
+        <input type="text" placeholder="firstname" class="input input-bordered w-full max-w-xs" v-model="firstname" required/>
+        <input type="text" placeholder="surname" class="input input-bordered w-full max-w-xs" v-model="surname" required/>
+        <input type="text" placeholder="telephone" class="input input-bordered w-full max-w-xs" v-model="telephone" required />
+        <button class="btn" @click="register">Button</button>      
+    </form>
+
 
     </div>
 </template>
 
 <script setup>
 
+const registerSucessful = ref(false);
 const registerError = ref(false);
 const errorMessage = ref('');
 const email = ref('');
@@ -34,11 +42,10 @@ const register = async (event) => {
     console.log(email.value);
     console.log(firstname.value);
     console.log(surname.value);
-    console.log(telephone.value);
     console.log(password.value);
 
 
-    const { data, error } = await useFetch('http://localhost:5000/register', 
+    await useFetch('http://localhost:5000/employee/register', 
     {
         method: "POST",
         headers: {
@@ -53,7 +60,6 @@ const register = async (event) => {
         telephone: telephone.value
         },
 
-
         onResponse({ request, response, options }) {
 
             if (response.status == 200) {
@@ -63,8 +69,7 @@ const register = async (event) => {
                 password.value = '';
                 telephone.value = '';
 
-
-                navigateTo('/dashboard');
+                registerSucessful.value = true;
 
             }
 
@@ -73,9 +78,9 @@ const register = async (event) => {
                 registerError.value = true;
                 errorMessage.value = "An account with this email already exists";
             }
-        }
-    });
 
+         }
+    });
 }
 
 </script>
