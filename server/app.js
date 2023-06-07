@@ -160,6 +160,21 @@ app.post("/login", async (req, res) => {
     }
 });
 
+app.get('/logout', async (req, res) => {
+
+    try {
+        //Removes user tokens and csrf tokens, clears cookies and then forces the user to go back to main page
+        const auth_token = req.cookies.token;
+
+        const stored_session = await pool.query('DELETE FROM user_sessions WHERE session_id = $1', [auth_token])
+
+        res.clearCookie('auth_token'); // Clear the 'token' cookie
+        res.json({message: 'Logged out successfully'});
+    } catch (error) {
+        res.status(402).json({ message: 'Error' });
+    }
+});
+
 app.post("/employee/register", async (req, res) => {
     try {
         let {email, password, firstname, surname} = req.body;
@@ -204,38 +219,14 @@ app.post("/employee/register", async (req, res) => {
 
 });
 
-
-// app.post("/add-availability", async (req, res) => {
-
-//     // const user = req.user;
-//     const user = {
-//         id: 1
-//     };
-
-//     try {
-//         let {slots} = req.body;
-
-
-//         for (let i = 0; i < slots.length; i++) {
-
-//             const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, slots[i].availabilityDate, slots[i].startTime, slots[i].endTime, true]);
-
-//         };
-
-//         res.json({message: "Availability Successfully added"});
-
-//     } catch (err) {
-//         console.error(err.message);
-//         res.json({message:"Error creating user"});
-//     }
-
-// });
-
-
+const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
+const clientRouter = require('./routes/clientRouter');
 
 
+app.use('/admin', adminRouter);
 app.use('/employee', employeeRouter);
+app.use('/client', clientRouter);
 
 
 

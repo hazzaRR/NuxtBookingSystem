@@ -16,7 +16,7 @@ const router = express.Router();
 router.use(cookieParser());
 router.use(express.json());
 
-const authenticateEmployee = async (req, res, next) => {
+const authenticateClient = async (req, res, next) => {
 
     const {auth_token} = req.cookies;
 
@@ -35,20 +35,18 @@ const authenticateEmployee = async (req, res, next) => {
 
     console.log(user_session.rows[0])
 
-    if (user_session.rows[0].user_type !== 'employee') {
-        console.log("no here")
+    if (user_session.rows[0].user_type !== 'client') {
         return res.status(403).json({message: "Restricted Access"});
     }
     
-    const employee = await pool.query('SELECT * FROM employee WHERE id = $1', [user_session.rows[0].user_id]);
+    const client = await pool.query('SELECT * FROM client WHERE id = $1', [user_session.rows[0].user_id]);
 
-    req.user = employee.rows[0]
+    req.user = client.rows[0]
     next();
 
 };
 
-
-const reauthenticateEmployee = async (req, res, next) => {
+const reauthenticateClient = async (req, res, next) => {
 
     const user = req.user;
 
@@ -57,7 +55,7 @@ const reauthenticateEmployee = async (req, res, next) => {
     const { password } = req.body;
     const hashEmail = CryptoJS.AES.encrypt(user.email, crykey,{ iv: iv }).toString();
     //find user in the databse and return their details
-    const info = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
+    const info = await pool.query('SELECT * FROM client WHERE email = $1', [hashEmail])
 
     //check the password the user provided matches their stored password, if they don't return
     //unauthorised code to user, if it is continue with server change
@@ -69,45 +67,25 @@ const reauthenticateEmployee = async (req, res, next) => {
         console.log("incorrect password");
     }
 
-}
+};
 
-router.post("/add-availability", authenticateEmployee, async (req, res) => {
-
-    const user = req.user;
-    let {date, slots} = req.body;
-    try {
-        for (let i = 0; i < slots.length; i++) {
-
-            const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, date, slots[i].startTime, slots[i].endTime, true]);
-
-        };
-
-        res.json({message: "Availability Successfully added"});
-
-    } catch (err) {
-        console.error(err.message);
-        res.json({message:"Error creating user"});
-    }
-
-});
-
-router.delete('/delete-account', authenticateEmployee, reauthenticateEmployee, async (req, res) => {
+router.delete('/delete-account', authenticateClient, reauthenticateClient, async (req, res) => {
 
     const user = req.user;
 
     try {
 
-        const deleteAccount = await pool.query("DELETE FROM employee WHERE ID = $1", [user.id]);
+        const deleteAccount = await pool.query("DELETE FROM client WHERE ID = $1", [user.id]);
 
-        res.json({message: "Employee Successfully Deleted"});
+        res.json({message: "Client Successfully Deleted"});
 
     } catch (err) {
         console.error(err.message);
-        res.json({message:"Error deleting employee"});
+        res.json({message:"Error deleting Client"});
     }
-});
+})
 
-router.put('/update-account', authenticateEmployee, authenticateEmployee, async (req, res) => {
+router.put('/update-account', authenticateClient, authenticateClient, async (req, res) => {
 
     const user = req.user;
 
@@ -115,9 +93,9 @@ router.put('/update-account', authenticateEmployee, authenticateEmployee, async 
 
     try {
 
-        const updateAccount = await pool.query("UPDATE employee SET email = $1, firstname = $2, surname = $3, telephone = $4 WHERE ID = $5", [hashEmail, firstname, surname, telephone, user.id]);
+        const updateAccount = await pool.query("UPDATE client SET email = $1, firstname = $2, surname = $3, telephone = $4 WHERE ID = $5", [hashEmail, firstname, surname, telephone, user.id]);
 
-        res.json({message: "Employee details successfully updated"});
+        res.json({message: "Client details successfully updated"});
 
     } catch (err) {
         console.error(err.message);
@@ -125,8 +103,7 @@ router.put('/update-account', authenticateEmployee, authenticateEmployee, async 
     }
 });
 
-router.put('/change-password', authenticateEmployee, authenticateEmployee, async (req, res) => {
-
+router.put('/change-password', authenticateClient, authenticateClient, async (req, res) => {
 
     try {
 
@@ -141,14 +118,14 @@ router.put('/change-password', authenticateEmployee, authenticateEmployee, async
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         //find user in database with that id and update their  password
-        const updatedAccount = await pool.query(`UPDATE employee SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
+        const updatedAccount = await pool.query(`UPDATE client SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
 
         console.log("Account password successfully updated");
         res.json("Account password successfully updated")
 
     } catch (err) {
         console.error(err.message);
-        res.json({message:"Error updating employee password"});
+        res.json({message:"Error updating client password"});
     }
 });
 

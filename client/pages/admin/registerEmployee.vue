@@ -45,7 +45,7 @@ const register = async (event) => {
     console.log(password.value);
 
 
-    await useFetch('http://localhost:5000/employee/register', 
+    await useFetch('http://localhost:5000/admin/register-employee', 
     {
         method: "POST",
         headers: {
