@@ -1,5 +1,14 @@
 <template>
     <div>
+
+      <NuxtLink to="/employee">Dashboard</NuxtLink>
+        <NuxtLink to="/employee/manageAccount">Manage Account</NuxtLink>
+        <NuxtLink to="/employee/addAvailability">Add Availability</NuxtLink>
+        <NuxtLink to="/employee/manageBookings">Manage Bookings</NuxtLink>
+
+        <br />
+
+
         <label>Date:</label>
     <input type="date" v-model="selectedDate" />
     <input type="number" v-model="defaultSlotLength" />
@@ -41,11 +50,11 @@
 //     middleware: "auth"
 // });
 
-
 const selectedDate = ref();
 const defaultSlotLength = ref(30);
+
 const timeSlots = ref([
-{ startTime: '00:00', endTime: '00:30' }
+  { timeToStart: '09:00', endTime: '09:30' }
 ])
 
 const addTimeSlot = () => {

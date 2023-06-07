@@ -47,6 +47,30 @@ const authenticateEmployee = async (req, res, next) => {
 
 };
 
+
+const reauthenticateEmployee = async (req, res, next) => {
+
+    const user = req.user;
+
+    const username = user.username;
+
+    const { password } = req.body;
+    const hashEmail = CryptoJS.AES.encrypt(user.email, crykey,{ iv: iv }).toString();
+    //find user in the databse and return their details
+    const info = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
+
+    //check the password the user provided matches their stored password, if they don't return
+    //unauthorised code to user, if it is continue with server change
+    const isPasswordValid = await bcrypt.compare(password, info.rows[0].password);
+    if (isPasswordValid) {
+        next();
+    } else {
+        res.status(401).json('Invalid password');
+        console.log("incorrect password");
+    }
+
+}
+
 router.post("/add-availability", authenticateEmployee, async (req, res) => {
 
     const user = req.user;
@@ -75,6 +99,70 @@ router.post("/add-availability", authenticateEmployee, async (req, res) => {
     }
 
 });
+
+
+router.delete('/delete-account', authenticateEmployee, reauthenticateEmployee, async (req, res) => {
+
+    const user = req.user;
+
+    try {
+
+        const deleteAccount = await pool.query("DELETE FROM employee WHERE ID = $1", [user.id]);
+
+        res.json({message: "Employee Successfully Deleted"});
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error deleting employee"});
+    }
+})
+
+router.put('/update-account', authenticateEmployee, authenticateEmployee, async (req, res) => {
+
+    const user = req.user;
+
+    const {email, firstname, surname, telephone} = req.body;
+
+    try {
+
+        const updateAccount = await pool.query("UPDATE employee SET email = $1, firstname = $2, surname = $3, telephone = $4 WHERE ID = $5", [hashEmail, firstname, surname, telephone, user.id]);
+
+        res.json({message: "Employee details successfully updated"});
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error deleting employee"});
+    }
+});
+
+router.put('/change-password', authenticateEmployee, authenticateEmployee, async (req, res) => {
+
+
+    try {
+
+        const user = req.user;
+        let accountid = user.id;
+        let {newPassword, reEnteredNewPassword} = req.body;
+
+        if (newPassword !== reEnteredNewPassword) {
+            return res.status(403).json("Password do not match");
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        //find user in database with that id and update their  password
+        const updatedAccount = await pool.query(`UPDATE employee SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
+
+        console.log("Account password successfully updated");
+        res.json("Account password successfully updated")
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error updating employee password"});
+    }
+});
+
+
     
 
 module.exports = router;
