@@ -1,13 +1,5 @@
 <template>
     <div>
-
-        <nav>
-            <NuxtLink to="/admin">Dashboard</NuxtLink>
-            <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
-            <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
-            <NuxtLink to="/admin/settings">Settings</NuxtLink>
-        </nav>
-
         <p v-if="error">{{ message.value }}</p>
         <!-- <p v-if="success">{{  }}</p> -->
 
@@ -28,6 +20,11 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+    middleware: "auth",
+    layout: "admin-layout"
+});
 
 const password = ref('');
 const newPassword = ref('');

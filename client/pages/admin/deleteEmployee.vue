@@ -1,14 +1,6 @@
 <template>
     <div>
-
         <h1>Delete Employee</h1>
-        <nav>
-            <NuxtLink to="/admin" class="p-6">Dashboard</NuxtLink>
-            <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
-            <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
-            <NuxtLink to="/admin/settings">Settings</NuxtLink>
-        </nav>
-
         <div>
 
             <table>
@@ -48,7 +40,8 @@
 <script setup>
 
 definePageMeta({
-    middleware: "auth"
+    middleware: "auth",
+    layout: "admin-layout"
 });
 
 const employees = ref([]);

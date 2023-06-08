@@ -1,20 +1,14 @@
 <template>
     <div>
 
-        <nav>
-            <NuxtLink to="/admin">Dashboard</NuxtLink>
-            <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
-            <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
-            <NuxtLink to="/admin/settings">Settings</NuxtLink>
-        </nav>
-
     <h1 v-if="registerSucessful">Employee Created Successfully</h1>
     <h1 v-if="registerError">{{errorMessage}}</h1>
 
 
 
-    <form>
+    <form class="container">
         <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email" required/>
+        <br>
         <input type="password" placeholder="password" class="input input-bordered w-full max-w-xs" v-model="password"  required/>
         <input type="text" placeholder="firstname" class="input input-bordered w-full max-w-xs" v-model="firstname" required/>
         <input type="text" placeholder="surname" class="input input-bordered w-full max-w-xs" v-model="surname" required/>
@@ -27,6 +21,11 @@
 </template>
 
 <script setup>
+
+definePageMeta({
+    middleware: "auth",
+    layout: "admin-layout"
+});
 
 const registerSucessful = ref(false);
 const registerError = ref(false);

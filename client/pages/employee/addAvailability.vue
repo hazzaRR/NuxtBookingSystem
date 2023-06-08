@@ -1,15 +1,6 @@
 <template>
     <div>
-
-      <NuxtLink to="/employee">Dashboard</NuxtLink>
-        <NuxtLink to="/employee/manageAccount">Manage Account</NuxtLink>
-        <NuxtLink to="/employee/addAvailability">Add Availability</NuxtLink>
-        <NuxtLink to="/employee/manageBookings">Manage Bookings</NuxtLink>
-
-        <br />
-
-
-        <label>Date:</label>
+    <label>Date:</label>
     <input type="date" v-model="selectedDate" />
     <input type="number" v-model="defaultSlotLength" />
 
@@ -46,9 +37,11 @@
 </template>
 
 <script setup>
-// definePageMeta({
-//     middleware: "auth"
-// });
+
+definePageMeta({
+    middleware: "auth",
+    layout: "employe-layout"
+});
 
 const selectedDate = ref();
 const defaultSlotLength = ref(30);
