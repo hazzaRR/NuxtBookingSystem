@@ -16,7 +16,7 @@
       <li v-for="(link, index) in links" :key="index"><NuxtLink :to="link.link">{{link.name}}</NuxtLink></li>
     </ul>
   </div>
-  <div class="navbar-end">
+  <div v-if="loggedIn" class="navbar-end">
     <button class="btn" @click="logout">Logout</button>
   </div>
 </div>
@@ -25,12 +25,27 @@
 
 <script setup>
 
-const props = defineProps(['links'])
+const props = defineProps(['links', 'loggedIn'])
+
 
 
 const logout = async () => {
 
+  const response = await fetch('http://localhost:5000/logout', 
+  {
+        method: "GET",
+        headers: {
+                'Content-Type': 'application/json'
+        },
+        credentials: "include"
+    })
 
+    if (response.status === 200) {
+      navigateTo("/");
+    }
+    else {
+      console.log("error logging out");
+    }
 
 };
 
