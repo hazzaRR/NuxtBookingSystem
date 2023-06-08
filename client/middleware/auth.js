@@ -2,51 +2,48 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
     if (process.client) {  
         
-        const {data, error} = await useFetch('http://localhost:5000/auth-check', 
+        let authenticated = false;
+
+        const response = await fetch('http://localhost:5000/auth-check', 
         {      
         headers: {
             'Content-Type': 'application/json'
         },
-        credentials: "include",
-        server: false,
-
-        onResponse({ request, response, options }) {
-
-            if (response.status == 403 || response.status == 401 ) {
-                clearError({ redirect: '/login' })
-            }
-
-            const path = to.path.split('/')
-    
-            if (path[1] === "admin" && response._data.user_type !== 'admin') {
-                throw createError({ statusCode: 403, statusMessage: 'Restricted Access to this page', data: response._data})
-            }
-            
-            else if (path[1] === "employee" && response._data.user_type !== 'employee') {
-                throw createError({ statusCode: 403, statusMessage: 'Restricted Access to this page', data: response._data})
-            }
-
-            else if (path[1] === "dashboard" && response._data.user_type !== 'client') {
-                return abortNavigation(
-                    createError({
-                        statusCode: 403,
-                        message: 'Forbidden access to this route',
-                      })
-                )
-            }
-        }
+        credentials: "include"
         });
 
-    if (!data.value && error._object[error._key].statusCode === 403) {
 
+        const data = await response.json();
+
+        console.log(response.status);
+
+
+        const path = to.path.split('/');
+
+        if (path[1] === "admin" && data.user_type !== 'admin') {
+            authenticated = false;
+        }
+        
+        else if (path[1] === "employee" && data.user_type !== 'employee') {
+            authenticated = false;
+        }
+
+        else if (path[1] === "dashboard" && data.user_type !== 'client') {
+            authenticated = false;
+        }
+        else if (response.status === 403 || response.status === 401) {
+            authenticated = false
+            
+        }
+        else if (response.status === 200) {
+                authenticated = true
+        }
+        
+    console.log(data);
+    console.log(authenticated);
+    if (!authenticated) {
+        // return abortNavigation();
         return navigateTo('/');
-
-        // clearError({ redirect: '/' })
-        // return abortNavigation( 
-        // createError({
-        //     statusCode: 403,
-        //     message: 'Forbidden access to this route',
-        //   }));
     }
 }
 });

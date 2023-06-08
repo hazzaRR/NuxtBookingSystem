@@ -31,7 +31,7 @@ app.get('/auth-check', async (req, res) => {
 
     const user_session = await pool.query('SELECT * FROM user_sessions WHERE session_id = $1', [auth_token]);
 
-    console.log(user_session)
+    console.log(user_session.rows[0])
 
     if (!user_session.rows[0]) {
         return res.status(403).json({message: "Unable to authenticate session"});
@@ -43,6 +43,7 @@ app.get('/auth-check', async (req, res) => {
         return res.status(403).json({message: "Unable to authenticate session"});
     }
 
+    console.log("authenticated")
     return res.status(200).json({message: "Authenticated", user_type: user_session.rows[0].user_type});
 });
 

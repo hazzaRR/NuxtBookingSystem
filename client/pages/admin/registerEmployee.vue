@@ -1,9 +1,12 @@
 <template>
     <div>
 
-        <NuxtLink to="/admin">Dashboard</NuxtLink>
-        <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
-        <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
+        <nav>
+            <NuxtLink to="/admin">Dashboard</NuxtLink>
+            <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
+            <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
+            <NuxtLink to="/admin/settings">Settings</NuxtLink>
+        </nav>
 
     <h1 v-if="registerSucessful">Employee Created Successfully</h1>
     <h1 v-if="registerError">{{errorMessage}}</h1>
@@ -45,42 +48,41 @@ const register = async (event) => {
     console.log(password.value);
 
 
-    await useFetch('http://localhost:5000/admin/register-employee', 
+    const response = await fetch('http://localhost:5000/admin/register-employee', 
     {
         method: "POST",
         headers: {
                 'Content-Type': 'application/json'
         },
         credentials: "include",
-        body: {
+        body: JSON.stringify({
         email: email.value,
         firstname: firstname.value,
         surname: surname.value,
         password: password.value,
         telephone: telephone.value
-        },
-
-        onResponse({ request, response, options }) {
-
-            if (response.status == 200) {
-                email.value = '';
-                firstname.value = '';
-                surname.value = '';
-                password.value = '';
-                telephone.value = '';
-
-                registerSucessful.value = true;
-
-            }
-
-            if (response.status == 409) {
-                console.log("hello")
-                registerError.value = true;
-                errorMessage.value = "An account with this email already exists";
-            }
-
-         }
+        })
     });
+
+    if (response.status == 200) {
+        email.value = '';
+        firstname.value = '';
+        surname.value = '';
+        password.value = '';
+        telephone.value = '';
+
+        registerSucessful.value = true;
+
+    }
+
+    if (response.status == 409) {
+        console.log("hello")
+        registerError.value = true;
+        errorMessage.value = "An account with this email already exists";
+    }
+
+
+
 }
 
 </script>

@@ -1,11 +1,12 @@
 <template>
     <div>
 
+        <h1>Delete Employee</h1>
         <nav>
-            <h1>Delete Employee</h1>
-            <NuxtLink to="/admin">Dashboard</NuxtLink>
+            <NuxtLink to="/admin" class="p-6">Dashboard</NuxtLink>
             <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
             <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
+            <NuxtLink to="/admin/settings">Settings</NuxtLink>
         </nav>
 
         <div>
@@ -31,7 +32,7 @@
                     {{employee.telephone}}
                     </td>
                     <td>
-                    <button @click="deleteEmployee(employee.id)">Delete</button>
+                    <button @click="deleteEmployee(employee.id, index)">Delete</button>
                     </td>
                     </tr>
                 </tbody>
@@ -50,46 +51,53 @@ definePageMeta({
     middleware: "auth"
 });
 
+const employees = ref([]);
 
-const { data } = await useFetch('http://localhost:5000/admin/employees', {
+const getEmployees = async () => {
+    const data = await $fetch('http://localhost:5000/admin/employees', {
     credentials: "include",
+    });
+
+    console.log(data)
+
+    employees.value = data.employees;
+
+};
+
+onBeforeMount(() => {
+    getEmployees();
 });
 
 
-console.log(data.value);
+const deleteEmployee = async (employeeId, index) => {
 
+    if(confirm("Are you sure you want to delete this ueser?")) {
 
-const deleteEmployee = async (employeeId) => {
-
-    await useFetch('http://localhost:5000/admin/delete-employee', 
-    {
-        method: "DELETE",
-        headers: {
+        
+        const response = await fetch('http://localhost:5000/admin/delete-employee', 
+        {
+            method: "DELETE",
+            headers: {
                 'Content-Type': 'application/json'
-        },
-        credentials: "include",
-        body: {
-            employeeId
-        },
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                employeeId
+            })
+        });
 
-        onResponse({ request, response, options }) {
-
-            if (response.status == 200) {
-                employees.value.splice(index, 1);
-            }
-
-            if (response.status == 409) {
-                console.log("hello")
-                registerError.value = true;
-                errorMessage.value = "An account with this email already exists";
-            }
-
-         }
-    });
-
-
-
-}
+        
+        if (response.status == 200) {
+            employees.value.splice(index, 1);
+        }
+        
+        if (response.status == 409) {
+            registerError.value = true;
+            errorMessage.value = "An account with this email already exists";
+        }
+    };
+      
+};
 
 
 </script>

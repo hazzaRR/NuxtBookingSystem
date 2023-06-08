@@ -3,10 +3,13 @@
 
         <h1>Admin dashboard</h1>
 
-        <NuxtLink to="/admin">Dashboard</NuxtLink>
-        <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
-        <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
-
+        <nav>
+            <NuxtLink to="/admin">Dashboard</NuxtLink>
+            <NuxtLink to="/admin/registerEmployee">Register Employee</NuxtLink>
+            <NuxtLink to="/admin/deleteEmployee">Delete Employee</NuxtLink>
+            <NuxtLink to="/admin/settings">Settings</NuxtLink>
+        </nav>
+            
     </div>
 </template>
 

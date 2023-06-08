@@ -38,43 +38,38 @@ const register = async (event) => {
     console.log(password.value);
 
 
-    const { data, error } = await useFetch('http://localhost:5000/register', 
+    const response = await fetch('http://localhost:5000/register', 
     {
         method: "POST",
         headers: {
                 'Content-Type': 'application/json'
         },
         credentials: "include",
-        body: {
+        body: JSON.stringify({
         email: email.value,
         firstname: firstname.value,
         surname: surname.value,
         password: password.value,
         telephone: telephone.value
-        },
-
-
-        onResponse({ request, response, options }) {
-
-            if (response.status == 200) {
-                email.value = '';
-                firstname.value = '';
-                surname.value = '';
-                password.value = '';
-                telephone.value = '';
-
-
-                navigateTo('/dashboard');
-
-            }
-
-            if (response.status == 409) {
-                console.log("hello")
-                registerError.value = true;
-                errorMessage.value = "An account with this email already exists";
-            }
-        }
+        })
     });
+
+    if (response.status == 200) {
+        email.value = '';
+        firstname.value = '';
+        surname.value = '';
+        password.value = '';
+        telephone.value = '';
+
+
+        navigateTo('/dashboard');
+
+    }
+
+    else if (response.status == 409) {
+        registerError.value = true;
+        errorMessage.value = "An account with this email already exists";
+    }
 
 }
 

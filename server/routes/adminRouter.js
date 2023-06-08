@@ -49,14 +49,16 @@ const authenticateAdmin = async (req, res, next) => {
 
 const reauthenticateAdmin = async (req, res, next) => {
 
-    const user = req.user;
+    const { user } = req;
 
-    const username = user.username;
+    const adminID = user.id;
 
     const { password } = req.body;
-    const hashUsername = CryptoJS.AES.encrypt(username, crykey,{ iv: iv }).toString();
+    // const hashUsername = CryptoJS.AES.encrypt(username, crykey,{ iv: iv }).toString();
     //find user in the databse and return their details
-    const info = await pool.query('SELECT * FROM admin WHERE username = $1', [hashUsername])
+    const info = await pool.query('SELECT * FROM admin WHERE id = $1', [adminID])
+
+    console.log(info.rows[0])
 
     //check the password the user provided matches their stored password, if they don't return
     //unauthorised code to user, if it is continue with server change
@@ -76,11 +78,11 @@ router.get('/employees', authenticateAdmin, async (req, res) => {
 
         console.log("This got here")
 
-        const employees = await pool.query('SELECT * FROM employees');
+        const employees = await pool.query('SELECT id, firstname, surname, telephone FROM employee');
 
-        console.log(employees.rows)
+        console.log(employees.rows);
 
-        return res.status(200).json({employees: employees, message: "Employees fetched succesfully"});
+        return res.status(200).json({employees: employees.rows, message: "Employees fetched succesfully"});
         
     } catch (err) {
         console.error(err.message);
@@ -108,11 +110,11 @@ router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (re
         const updatedAccount = await pool.query(`UPDATE admin SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
 
         console.log("Account password successfully updated");
-        res.json("Account password successfully updated")
+        return res.json("Account password successfully updated")
 
     } catch (err) {
         console.error(err.message);
-        res.json({ message:"Error updating admin password" });
+        return res.json({ message:"Error updating admin password" });
     }
 });
 

@@ -18,8 +18,6 @@
 const email = ref('');
 const password = ref('');
 
-
-
 const login = async (event ) => {
     event.preventDefault();
     
@@ -27,25 +25,28 @@ const login = async (event ) => {
     console.log(password.value);
     
     
-    const { data, error } = await useFetch('http://localhost:5000/login', 
+    const response = await fetch('http://localhost:5000/login', 
     {
         method: "POST",
         headers: {
                 'Content-Type': 'application/json'
         },
         credentials: "include",
-        body: {
+        body: JSON.stringify({
             email: email.value,
             password: password.value
-        }});
+        })
+    });
+
+    const data = await response.json();
+
+        if (response.status === 200) {
 
 
-        if (data.value) {
-
-            if (data.value.user_type === 'admin') {
+            if (data.user_type === 'admin') {
                 navigateTo('/admin');
             }
-            else if (data.value.user_type === 'employee') {
+            else if (data.user_type === 'employee') {
                 navigateTo('/employee');
             }
             else {
@@ -54,7 +55,7 @@ const login = async (event ) => {
             // navigateTo('/dashboard');
         }
         else {
-            console.log(error.value);
+            console.log(data.message);
             alert("Incorrect username or password");
         }
         
@@ -65,7 +66,7 @@ const login = async (event ) => {
     }
         
         
-    </script>
+</script>
     
 <style lang="scss" scoped>
 
