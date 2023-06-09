@@ -1,14 +1,16 @@
 <template>
     <div>
-
-        <h1>Hello world</h1>
-
-        <form>
-        <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email" />
-        <input type="password" placeholder="password" class="input input-bordered w-full max-w-xs" v-model="password" />
-        <button class="btn" @click="login">Button</button>      
+        <form class="grid place-items-center ">
+        <div class="relative mb-6">
+            <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email"  required/>
+        </div>
+        <div class="relative mb-6">
+        <input type="password" placeholder="password" class="input input-bordered w-full max-w-xs" v-model="password"  required/>
+        </div>
+        <div class="relative mb-6">
+        <button class="btn" @click="login">Login</button>
+        </div>   
         </form>
-
     </div>
 </template>
 

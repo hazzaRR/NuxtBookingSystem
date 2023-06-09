@@ -9,7 +9,7 @@
         <li v-for="(link, index) in links" :key="index"><NuxtLink :to="link.link">{{link.name}}</NuxtLink></li>
       </ul>
     </div>
-    <a class="btn btn-ghost normal-case text-xl">daisyUI</a>
+    <a class="btn btn-ghost normal-case text-xl">Reservify</a>
   </div>
   <div class="navbar-center hidden lg:flex">
     <ul class="menu menu-horizontal px-1">

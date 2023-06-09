@@ -12,7 +12,7 @@
 
 definePageMeta({
     middleware: "auth",
-    layout: "employe-layout"
+    layout: "employee-layout"
 });
 
 </script>

@@ -1,8 +1,12 @@
 <template>
     <div>
     <label>Date:</label>
-    <input type="date" v-model="selectedDate" />
-    <input type="number" v-model="defaultSlotLength" />
+    <div class="relative mb-6">
+    <input type="date" v-model="selectedDate"  class="input input-bordered w-full max-w-xs"/>
+    </div>
+    <div class="relative mb-6">
+    <input type="number" v-model="defaultSlotLength"  class="input input-bordered w-full max-w-xs"/>
+    </div>
 
     <table>
       <thead>
@@ -15,10 +19,14 @@
       <tbody>
         <tr v-for="(slot, index) in timeSlots" :key="index">
           <td>
-            <input type="time" v-model="slot.startTime" @input="updateEndTime(index)" />
+            <div class="relative mb-6">
+            <input type="time" v-model="slot.startTime" class="input input-bordered w-full max-w-xs" @input="updateEndTime(index)" />
+            </div>
           </td>
           <td>
-            <input type="time" v-model="slot.endTime" />
+            <div class="relative mb-6">
+            <input type="time" v-model="slot.endTime" class="input input-bordered w-full max-w-xs" />
+            </div>
           </td>
           <td>
             <button @click="removeTimeSlot(index)">Remove</button>
@@ -40,7 +48,7 @@
 
 definePageMeta({
     middleware: "auth",
-    layout: "employe-layout"
+    layout: "employee-layout"
 });
 
 const selectedDate = ref();

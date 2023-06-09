@@ -55,6 +55,10 @@ const reauthenticateEmployee = async (req, res, next) => {
     const username = user.username;
 
     const { password } = req.body;
+
+    if (!password) {
+        return res.status(403).json({message:"No password provided"};)
+    }
     const hashEmail = CryptoJS.AES.encrypt(user.email, crykey,{ iv: iv }).toString();
     //find user in the databse and return their details
     const info = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
@@ -70,6 +74,25 @@ const reauthenticateEmployee = async (req, res, next) => {
     }
 
 }
+
+router.get('/account-details', authenticateEmployee, async(req, res) => {
+    const user = req.user;
+
+    try {
+
+        const account = await pool.query("SELECT id, email, firstname, surname, telephone from employee WHERE $1", [user.id]);
+
+        const decryptedEmail  = CryptoJS.AES.decrypt(account.rows[0].email, crykey,{ iv: iv });
+        account.rows[0].email = decryptedEmail.toString(CryptoJS.enc.Utf8);
+
+        res.json({message: "Successfully fetched account details", account: account.rows[0]});
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error creating user"});
+    }
+
+});
 
 router.post("/add-availability", authenticateEmployee, async (req, res) => {
 
@@ -107,11 +130,18 @@ router.delete('/delete-account', authenticateEmployee, reauthenticateEmployee, a
     }
 });
 
-router.put('/update-account', authenticateEmployee, authenticateEmployee, async (req, res) => {
+router.put('/update-account', authenticateEmployee, async (req, res) => {
 
     const user = req.user;
 
     const {email, firstname, surname, telephone} = req.body;
+
+    // console.log(email);
+    // console.log(firstname);
+    // console.log(surname);
+    // console.log(telephone);
+
+    const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
 
     try {
 
@@ -125,7 +155,7 @@ router.put('/update-account', authenticateEmployee, authenticateEmployee, async 
     }
 });
 
-router.put('/change-password', authenticateEmployee, authenticateEmployee, async (req, res) => {
+router.put('/change-password', authenticateEmployee, reauthenticateEmployee, async (req, res) => {
 
 
     try {
@@ -151,6 +181,8 @@ router.put('/change-password', authenticateEmployee, authenticateEmployee, async
         res.json({message:"Error updating employee password"});
     }
 });
+
+router.get('/appointments', )
 
 
     

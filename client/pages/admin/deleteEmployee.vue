@@ -1,9 +1,8 @@
 <template>
     <div>
         <h1>Delete Employee</h1>
-        <div>
-
-            <table>
+        <div class="overflow-x-auto">
+            <table class="table">
                 <thead>
                     <tr>
                     <th>First Name</th>
@@ -13,7 +12,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(employee, index) in employees" :key="index">
+                    <tr v-for="(employee, index) in employees" :key="index" class="hover">
                     <td>
                     {{employee.firstname}}
                     </td>
@@ -24,7 +23,7 @@
                     {{employee.telephone}}
                     </td>
                     <td>
-                    <button @click="deleteEmployee(employee.id, index)">Delete</button>
+                    <button class="btn btn-error" @click="deleteEmployee(employee.id, index)">Delete</button>
                     </td>
                     </tr>
                 </tbody>
