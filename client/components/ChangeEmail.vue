@@ -2,7 +2,6 @@
     <div>
 
         <form class="grid place-items-center ">
-            <p>{{ email.value }}</p>
         <div class="relative mb-6">
             <input type="email" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email" required/>
         </div>
@@ -19,10 +18,13 @@
 
 <script setup>
 
-const props = defineProps(['currentEmail'])
+const props = defineProps(['currentEmail']);
 
 const email = ref('');
 const password = ref('');
+
+
+console.log(email.value)
 
 
 onBeforeMount(() => {

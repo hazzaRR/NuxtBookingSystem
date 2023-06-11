@@ -14,10 +14,10 @@
             <ChangeEmail :currentEmail="email"/>
         </div>
         <div v-else-if="setting === 'updatePassword'">
-            <ChangePasswordForm />
+            <ChangePassword />
         </div>
         <div v-else-if="setting === 'updatePersonalDetails'">
-            <UpdatePersonalDetails />
+            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone"/>
         </div>
 
     </div>
@@ -31,7 +31,8 @@ definePageMeta({
 });
 
 
-let setting = ref('updateEmail');
+let setting = ref('updatePassword');
+
 const email = ref('');
 const firstname = ref('');
 const surname = ref('');
@@ -43,7 +44,6 @@ const getAccountDetails = async () => {
     credentials: "include",
     });
 
-    console.log(response);
     const data = await response.json();
     console.log(data.account);
 
