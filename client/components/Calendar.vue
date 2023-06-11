@@ -25,7 +25,7 @@ const calendarOptions = {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'addAppointmentBtn dayGridMonth,timeGridWeek,dayGridDay'
+        right: 'addAppointmentBtn dayGridMonth,timeGridWeek,timeGridDay'
       },
       eventTimeFormat: {
         hour: 'numeric',

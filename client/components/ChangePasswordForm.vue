@@ -20,7 +20,6 @@
 </template>
 
 <script setup>
-import { dA } from "@fullcalendar/core/internal-common";
 
 
 const password = ref('');
@@ -32,16 +31,21 @@ const UpdatePassword = async (event) => {
 
     event.preventDefault();
 
-    const response = await fetch('http://localhost:5000/employee/change-password', {
+    if (newPassword.value !== reEnteredNewPassword.value) {
+        console.log("passwords must match")
+        return;
+    }
+
+    const response = await fetch('http://localhost:5000/employee/update-password', {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'
         },
         credentials: 'include',
         body: JSON.stringify({
-            password,
-            newPassword,
-            reEnteredNewPassword
+            password: password.value,
+            newPassword: newPassword.value,
+            reEnteredNewPassword: reEnteredNewPassword.value
         })
     });
 
@@ -51,7 +55,7 @@ const UpdatePassword = async (event) => {
         console.log(data.message)
     }
     else {
-        console.log("error");
+        console.log(data.message);
     }
 };
 
