@@ -233,7 +233,7 @@ const ClientObject = {
           "ID": 1,
           "firstname": "John",
           "surname": "Doe",
-          "email": "johndoe@example.com",
+          "email": "johndoe1@example.com",
           "password": "password123",
           "telephone": "555-1234"
         },

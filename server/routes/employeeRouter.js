@@ -203,7 +203,7 @@ router.put('/update-email', authenticateEmployee, reauthenticateEmployee, async 
     }
 });
 
-router.get('/appointments', authenticateEmployee, async(req, res) => {
+router.get('/appointments', async(req, res) => {
 
     try {
 
@@ -211,14 +211,17 @@ router.get('/appointments', authenticateEmployee, async(req, res) => {
 
         const userID = 2;
 
+        console.log("hey")
 
-        const appointments = pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service,serviceName, service.price FROM Appointment INNER JOIN clients ON appointment.clientID = client.id INNNER JOIN service ON appointment.serviceID = service.id");
 
-        console.log(appointments.rows[0]);
+        const appointments = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, serviceName, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE employee.id = $1", [userID]);
+
+        console.log(appointments.rows);
 
         return res.json({message: "Success fetching appointments", appointments:appointments.rows})
         
     } catch (error) {
+        console.log(error)
         return res.json({message: "Error fetching data from database"});
     }
 
