@@ -56,36 +56,10 @@ const getAccountDetails = async () => {
 
 };
 
-onBeforeMount(() => {
+onMounted(() => {
     getAccountDetails();
 });
 
-
-const updateDetails = async (event) => {
-    event.preventDefault();
-
-//     const updatedAccountDetails = {
-//         email: email.value,
-//         firstname: firstname.value,
-//         surname: surname.value,
-//         telephone: telephone.value
-//     };
-
-//     const response = await fetch('http://localhost:5000/employee/update-account', {
-//         method: 'PUT',
-//         headers: {
-//                 'Content-Type': 'application/json'
-//         },
-//         credentials: 'include',
-//         body: JSON.stringify(updatedAccountDetails)
-//     });
-
-//     const data = await response.json();
-
-//     if (response.status === 200) {
-//         console.log(data.message)
-//     }
-};
 
 const showForm = (event) => {
 
@@ -93,8 +67,6 @@ const showForm = (event) => {
     console.log(targetId);
 
     setting.value = targetId;
-
-    console.log("link pressed");
 }
 
 </script>

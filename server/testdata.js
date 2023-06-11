@@ -98,34 +98,33 @@ const createTables = async () => {
         
 }
 
-// const createClient = async (accountObject) => {
+const createClient = async (ClientObject) => {
 
-//     try {
+    try {
 
-//         for (let accountIndex in accountObject.accounts) {
-//             let account = accountObject.accounts[accountIndex];
-//             console.log(`Username: ${account.username}, Email: ${account.email}`);
+        for (let index in ClientObject.clients) {
+            let client = ClientObject.clients[index];
 
-//             const hashEmail = CryptoJS.AES.encrypt(account.email, crykey,{ iv: iv }).toString();
-//             const hashUsername = CryptoJS.AES.encrypt(account.username, crykey,{ iv: iv }).toString();
-//             const existingUser = await pool.query("SELECT * FROM account WHERE username = $1 OR email = $2", [hashUsername,hashEmail]);
-//             if(existingUser.rows[0]){
-//                 throw new Error('Username, email or second email already taken');
-//             }
-//             const hashedPassword = await bcrypt.hash(account.password, 10);
+            const hashEmail = CryptoJS.AES.encrypt(client.email, crykey,{ iv: iv }).toString();
+
+            const existingUser = await pool.query("SELECT * FROM client WHERE email = $1", [hashEmail]);
+            if(existingUser.rows[0]){
+                throw new Error('email already taken');
+            }
+            const hashedPassword = await bcrypt.hash(client.password, 10);
     
-//             const createAccount = await pool.query("INSERT INTO account (username,email,password,auth_secret) VALUES($1, $2, $3, $4) RETURNING *", [hashUsername,hashEmail,hashedPassword, AuthCode]);
-//           }
+            const createAccount = await pool.query("INSERT INTO client (firstname, surname, email, password, telephone) VALUES($1, $2, $3, $4, $5) RETURNING *", [client.firstname, client.surname, hashEmail, hashedPassword, client.telephone]);
+          }
 
-//           console.log("Accounts created")
+          console.log("Accounts created")
 
-//           return;
+          return;
         
-//     } catch (error) {
-//         console.error(error);
-//     }
+    } catch (error) {
+        console.error(error);
+    }
 
-// }
+}
 
 const createAdmins = async (AdminObject) => {
 
@@ -185,30 +184,78 @@ const createEmployees = async (employeeObject) => {
 
 };
 
-// const accountObject = {
-//     "accounts": [
-//         {
-//             "username": "harryR",
-//             "email": "harryR@email.com",
-//             "password": "sugar123",
-//         },
-//         {
-//             "username": "zakb",
-//             "email": "zakb@email.com",
-//             "password": "massiverugbylegs",
-//         },
-//         {
-//             "username": "andyN",
-//             "email": "andyN@email.com",
-//             "password": "ilovewoody",
-//         },
-//         {
-//             "username": "finM",
-//             "email": "finM@email.com",
-//             "password": "ilovedrones",
-//         }
-// ]
-// };
+const createServices = async () => {
+
+    try {
+
+        let addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Basic Haircut', 25.00)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Mens Haircut', 30.00)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Womens Haircut', 35.00)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Childrens Haircut', 20.00)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Senior Haircut', 22.50)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Beard Trim', 15.00)");
+
+
+        console.log("Services created successfully");
+        
+    } catch (error) {
+
+        console.log(error.message)
+        
+    }
+};
+
+const createAppointments = async (AppointmentObject) => {
+
+    try {
+
+        for (let index in AppointmentObject.appointments) {
+            let appointment = AppointmentObject.appointments[index];
+    
+            const createAppointment = await pool.query("INSERT INTO appointment (appDate, startTime, endTime, clientID, employeeID, serviceID) VALUES($1, $2, $3, $4, $5, $6) RETURNING *", [appointment.appDate, appointment.startTime, appointment.endTime, appointment.clientID, appointment.employeeID, appointment.serviceID]);
+          
+        };
+
+          console.log("Employees created")
+
+          return;
+        
+    } catch (error) {
+        console.error(error);
+    }
+
+};
+
+
+const ClientObject = {
+    "clients": [
+        {
+          "ID": 1,
+          "firstname": "John",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "password123",
+          "telephone": "555-1234"
+        },
+        {
+          "ID": 2,
+          "firstname": "Jane",
+          "surname": "Smith",
+          "email": "janesmith@example.com",
+          "password": "pass456",
+          "telephone": "555-5678"
+        },
+        {
+          "ID": 3,
+          "firstname": "Michael",
+          "surname": "Johnson",
+          "email": "michaeljohnson@example.com",
+          "password": "abc789",
+          "telephone": "555-9012"
+        }
+      ]
+};
+
 
 const AdminObject = {
     "admins": [
@@ -245,11 +292,46 @@ const employeeObject = {
 ]
 }
 
+const AppointmentObject = {
+    "appointments": [
+            {
+              "ID": 1,
+              "appDate": "2023-06-12",
+              "startTime": "09:00:00",
+              "endTime": "10:00:00",
+              "clientID": 1,
+              "employeeID": 1,
+              "serviceID": 1
+            },
+            {
+              "ID": 2,
+              "appDate": "2023-06-12",
+              "startTime": "10:30:00",
+              "endTime": "11:30:00",
+              "clientID": 2,
+              "employeeID": 2,
+              "serviceID": 2
+            },
+            {
+              "ID": 3,
+              "appDate": "2023-06-13",
+              "startTime": "14:00:00",
+              "endTime": "15:00:00",
+              "clientID": 1,
+              "employeeID": 3,
+              "serviceID": 3
+            }
+        ]
+}
+
 const main = async () => {
     try {
       await createTables();
       await createAdmins(AdminObject);
       await createEmployees(employeeObject);
+      await createClient(ClientObject);
+      await createServices();
+      await createAppointments(AppointmentObject);
       process.exit(0);
     } catch (error) {
       console.error(error);

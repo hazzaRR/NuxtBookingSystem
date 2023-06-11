@@ -203,6 +203,27 @@ router.put('/update-email', authenticateEmployee, reauthenticateEmployee, async 
     }
 });
 
+router.get('/appointments', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        // const user = req.user;
+
+        const userID = 2;
+
+
+        const appointments = pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service,serviceName, service.price FROM Appointment INNER JOIN clients ON appointment.clientID = client.id INNNER JOIN service ON appointment.serviceID = service.id");
+
+        console.log(appointments.rows[0]);
+
+        return res.json({message: "Success fetching appointments", appointments:appointments.rows})
+        
+    } catch (error) {
+        return res.json({message: "Error fetching data from database"});
+    }
+
+});
+
 
 
     

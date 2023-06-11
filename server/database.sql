@@ -29,7 +29,7 @@ CREATE TABLE client (
 CREATE TABLE service (
     ID SERIAL PRIMARY KEY,
     serviceName VARCHAR(40),
-    PRICE NUMERIC(6, 2)
+    Price NUMERIC(6, 2)
 );
 
 CREATE TABLE employee_availability (

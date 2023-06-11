@@ -20,12 +20,8 @@
 
 const props = defineProps(['currentEmail']);
 
-const email = ref('');
+const email = ref();
 const password = ref('');
-
-
-console.log(email.value)
-
 
 onBeforeMount(() => {
     email.value = props.currentEmail;
