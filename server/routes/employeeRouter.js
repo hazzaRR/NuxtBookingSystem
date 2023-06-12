@@ -7,6 +7,7 @@ const crykey = CryptoJS.enc.Hex.parse("000102030405060708090a0b0c0d0e0f");
 const iv = CryptoJS.enc.Hex.parse("101112131415161718191a1b1c1d1e1f");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const app = require('../app');
 const port = process.env.PORT || 5001;
 require('dotenv').config();
 
@@ -203,22 +204,35 @@ router.put('/update-email', authenticateEmployee, reauthenticateEmployee, async 
     }
 });
 
-router.get('/appointments', async(req, res) => {
+router.get('/appointments', authenticateEmployee, async(req, res) => {
 
     try {
 
-        // const user = req.user;
+        const user = req.user;
 
-        const userID = 2;
-
-        console.log("hey")
-
-
-        const appointments = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, serviceName, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE employee.id = $1", [userID]);
-
-        console.log(appointments.rows);
+        const appointments = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, serviceName, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE employee.id = $1", [user.id]);
 
         return res.json({message: "Success fetching appointments", appointments:appointments.rows})
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+});
+
+router.get('/appointment', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { id } = req.query;
+
+        const appointment = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service.id as serviceID, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE appointment.id = $1", [id]);
+
+        console.log(appointment.rows[0])
+
+        return res.json({message: "Success fetching appointment", appointment:appointment.rows[0]})
         
     } catch (error) {
         console.log(error)

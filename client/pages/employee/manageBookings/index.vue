@@ -1,4 +1,5 @@
 <template>
+  
     <div>
 
         <h1>Manage Bookings</h1>
@@ -10,6 +11,7 @@
         </div>
 
 
+        
     </div>
 </template>
 
@@ -53,7 +55,8 @@ const calendarOptions = ref({
       },
       //redirects the page to show the details of the appointment you have selected
       eventClick: function(info) {
-        navigateTo(`/employee/viewAppointment?id=${info.event.id}`);
+
+        navigateTo(`/employee/manageBookings/${info.event.id}`);
       },
       customButtons: {
         addAppointmentBtn: {
@@ -67,6 +70,7 @@ const calendarOptions = ref({
 
 const appointments = ref(null);
 const events = ref([]);
+const selectedAppID = ref(null);
 
 const getAppointments = async () => {
 
@@ -93,7 +97,6 @@ const getAppointments = async () => {
         };
 
         calendarOptions.value.events.push(newEvent);
-        console.log(calendarOptions.value);
 
     };
 

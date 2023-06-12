@@ -11,6 +11,7 @@
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.7.0",
     "@types/node": "^18",
+    "daisyui": "^3.1.0",
     "nuxt": "^3.5.2"
   },
   "dependencies": {
@@ -18,7 +19,6 @@
     "@fullcalendar/daygrid": "^6.1.8",
     "@fullcalendar/interaction": "^6.1.8",
     "@fullcalendar/timegrid": "^6.1.8",
-    "@fullcalendar/vue3": "^6.1.8",
-    "daisyui": "^2.52.0"
+    "@fullcalendar/vue3": "^6.1.8"
   }
 }

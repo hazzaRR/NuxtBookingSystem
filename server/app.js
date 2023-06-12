@@ -220,6 +220,22 @@ app.post("/employee/register", async (req, res) => {
 
 });
 
+
+app.get("/services", async (req, res) => {
+
+
+    try {
+
+        const getServices = await pool.query("SELECT * FROM service");
+
+
+        return res.json({message:"Services fetched successfully", services: getServices.rows})
+        
+    } catch (error) {
+        return res.status(500).json({message:"Error accessing database"});
+    }
+})
+
 const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
 const clientRouter = require('./routes/clientRouter');
