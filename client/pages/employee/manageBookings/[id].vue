@@ -33,7 +33,7 @@
                     <input type="time" class="input input-bordered w-full max-w-xs" v-model="endTime"/>
                 </div>
                 <div class="relative mb-6">
-                    <button class="btn" @click="updateBooking">Edit</button>
+                    <button class="btn" @click="updateBooking">Update</button>
                     <button class="btn" @click="deleteBooking">Delete</button>
                 </div>   
             </form>
@@ -62,6 +62,9 @@ const services = ref(null);
 const getAppointment = async () => {
 
     const response = await fetch(`http://localhost:5000/employee/appointment?id=${route.params.id}`, {
+    headers: {
+        'Content-Type': 'application/json'
+    },
     credentials: "include",
     });
 
@@ -72,11 +75,11 @@ const getAppointment = async () => {
         console.log(data.appointment);
 
         appointmentDetails.value = data.appointment;
-        appDate.value = data.appointment.appdate.slice(0,10);
+        appDate.value = data.appointment.appdate;
         startTime.value = data.appointment.starttime;
         endTime.value = data.appointment.endtime;
         selectedService.value = data.appointment.serviceid;
-        
+
         loading.value = false;
 
     }
@@ -86,6 +89,9 @@ const getAppointment = async () => {
 const getServices = async () => {
 
 const response = await fetch(`http://localhost:5000/services`, {
+headers: {
+        'Content-Type': 'application/json'
+    },
 credentials: "include",
 });
 
@@ -108,8 +114,30 @@ const updateBooking = async (event) => {
 
     event.preventDefault();
 
-    console.log(selectedService.value);
-}
+    console.log(selectedService.value)
+
+    const response = await fetch(`http://localhost:5000/employee/appointment?id=${route.params.id}`, {
+    method: "PUT",
+    headers: {
+            'Content-Type': 'application/json'
+        },
+    credentials: "include",
+    body: JSON.stringify({
+        appDate: appDate.value,
+        startTime: startTime.value,
+        endTime: endTime.value,
+        serviceid: selectedService.value
+    })
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+
+        console.log(data.message);
+    };
+
+};
 
 
 

@@ -87,13 +87,13 @@ const getAppointments = async () => {
     };
 
     for (let i = 0; i < data.appointments.length; i++) {
-        console.log(data.appointments[i].appdate.slice(0,10));
+        console.log(new Date(data.appointments[i].appdate).toLocaleDateString('en-UK').replace(/\//g, '-'));
 
         const newEvent = {
         id: data.appointments[i].id,
         title: `${data.appointments[i].firstname} ${data.appointments[i].surname}`,
-        start: `${data.appointments[i].appdate.slice(0,10)}T${data.appointments[i].starttime}`,
-        end: `${data.appointments[i].appdate.slice(0,10)}T${data.appointments[i].endtime}`
+        start: `${data.appointments[i].appdate}T${data.appointments[i].starttime}`,
+        end: `${data.appointments[i].appdate}T${data.appointments[i].endtime}`
         };
 
         calendarOptions.value.events.push(newEvent);

@@ -210,7 +210,7 @@ router.get('/appointments', authenticateEmployee, async(req, res) => {
 
         const user = req.user;
 
-        const appointments = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, serviceName, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE employee.id = $1", [user.id]);
+        const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, serviceName, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE employee.id = $1", [user.id]);
 
         return res.json({message: "Success fetching appointments", appointments:appointments.rows})
         
@@ -228,11 +228,35 @@ router.get('/appointment', authenticateEmployee, async(req, res) => {
         const user = req.user;
         const { id } = req.query;
 
-        const appointment = await pool.query("SELECT appointment.id, appointment.appDate, appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service.id as serviceID, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE appointment.id = $1", [id]);
+        const appointment = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service.id as serviceID, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE appointment.id = $1", [id]);
 
-        console.log(appointment.rows[0])
+        // console.log(appointment.rows[0])
 
         return res.json({message: "Success fetching appointment", appointment:appointment.rows[0]})
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+});
+
+router.put('/appointment', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { id } = req.query;
+        const {appDate, startTime, endTime, serviceid} = req.body;
+
+        // console.log(appDate);
+        // console.log(startTime);
+        // console.log(endTime);
+        // console.log(serviceid);
+
+        const appointment = await pool.query("UPDATE appointment SET appdate = $1, starttime = $2, endtime = $3, serviceid = $4 WHERE id = $5", [appDate, startTime, endTime, serviceid, id]);
+
+        return res.json({message: "Success updating appointment"})
         
     } catch (error) {
         console.log(error)
