@@ -46,6 +46,8 @@
 
 <script setup>
 
+const config = useRuntimeConfig();
+
 definePageMeta({
     middleware: "auth",
     layout: "employee-layout"
@@ -83,7 +85,7 @@ const submitAvailablity = async (e) => {
     };
 
 
-      const response = await fetch('http://localhost:5000/employee/add-availability', 
+      const response = await fetch(`${config.public.API_BASE_URL}/employee/add-availability`, 
         {
         method: "POST",
         headers: {

@@ -1,10 +1,12 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
 
+    const config = useRuntimeConfig();
+
     if (process.client) {  
         
         let authenticated = false;
 
-        const response = await fetch('http://localhost:5000/auth-check', 
+        const response = await fetch(`${config.public.API_BASE_URL}/auth-check`, 
         {      
         headers: {
             'Content-Type': 'application/json'

@@ -21,6 +21,7 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig();
 
 definePageMeta({
     middleware: "auth",
@@ -47,7 +48,7 @@ const register = async (event) => {
     console.log(password.value);
 
 
-    const response = await fetch('http://localhost:5000/admin/register-employee', 
+    const response = await fetch(`${config.public.API_BASE_URL}/admin/register-employee`, 
     {
         method: "POST",
         headers: {

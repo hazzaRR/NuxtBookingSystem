@@ -18,6 +18,8 @@
 
 <script setup>
 
+const config = useRuntimeConfig();
+
 const registerError = ref(false);
 const errorMessage = ref('');
 const email = ref('');
@@ -38,7 +40,7 @@ const register = async (event) => {
     console.log(password.value);
 
 
-    const response = await fetch('http://localhost:5000/register', 
+    const response = await fetch(`${config.public.API_BASE_URL}/register`, 
     {
         method: "POST",
         headers: {

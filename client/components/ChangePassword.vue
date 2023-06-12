@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig();
 
 
 const password = ref('');
@@ -36,7 +37,7 @@ const UpdatePassword = async (event) => {
         return;
     }
 
-    const response = await fetch('http://localhost:5000/employee/update-password', {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/update-password`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'

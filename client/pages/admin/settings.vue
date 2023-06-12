@@ -20,6 +20,7 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig();
 
 definePageMeta({
     middleware: "auth",
@@ -50,7 +51,7 @@ const changePassword = async (event) => {
         return;
     }
 
-    const response = await fetch('http://localhost:5000/admin/change-password', {
+    const response = await fetch(`${config.public.API_BASE_URL}/admin/change-password`, {
         method: "PUT",
         headers: {
                 'Content-Type': 'application/json'

@@ -18,6 +18,8 @@
 
 <script setup>
 
+const config = useRuntimeConfig();
+
 const props = defineProps(['currentEmail']);
 
 const email = ref();
@@ -39,7 +41,7 @@ const UpdateEmail = async (event) => {
     }
 
 
-    const response = await fetch('http://localhost:5000/employee/update-email', {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/update-email`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'

@@ -37,6 +37,7 @@
 </template>
 
 <script setup>
+const config = useRuntimeConfig();
 
 definePageMeta({
     middleware: "auth",
@@ -46,7 +47,7 @@ definePageMeta({
 const employees = ref([]);
 
 const getEmployees = async () => {
-    const data = await $fetch('http://localhost:5000/admin/employees', {
+    const data = await $fetch(`${config.public.API_BASE_URL}/admin/employees`, {
     credentials: "include",
     });
 
@@ -66,7 +67,7 @@ const deleteEmployee = async (employeeId, index) => {
     if(confirm("Are you sure you want to delete this ueser?")) {
 
         
-        const response = await fetch('http://localhost:5000/admin/delete-employee', 
+        const response = await fetch(`${config.public.API_BASE_URL}/admin/delete-employee`, 
         {
             method: "DELETE",
             headers: {

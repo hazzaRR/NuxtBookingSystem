@@ -25,6 +25,8 @@
 
 <script setup>
 
+const config = useRuntimeConfig();
+
 definePageMeta({
     middleware: "auth",
     layout: "employee-layout"
@@ -40,7 +42,7 @@ const telephone = ref('');
 
 
 const getAccountDetails = async () => {
-    const response = await fetch('http://localhost:5000/employee/account-details', {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/account-details`, {
     credentials: "include",
     });
 

@@ -44,6 +44,8 @@
 
 <script setup>
 
+const config = useRuntimeConfig();
+
 const route = useRoute()
 
 definePageMeta({
@@ -61,7 +63,7 @@ const services = ref(null);
 
 const getAppointment = async () => {
 
-    const response = await fetch(`http://localhost:5000/employee/appointment?id=${route.params.id}`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/appointment?id=${route.params.id}`, {
     headers: {
         'Content-Type': 'application/json'
     },
@@ -88,7 +90,7 @@ const getAppointment = async () => {
 
 const getServices = async () => {
 
-const response = await fetch(`http://localhost:5000/services`, {
+const response = await fetch(`${config.public.API_BASE_URL}/services`, {
 headers: {
         'Content-Type': 'application/json'
     },
@@ -116,7 +118,7 @@ const updateBooking = async (event) => {
 
     console.log(selectedService.value)
 
-    const response = await fetch(`http://localhost:5000/employee/appointment?id=${route.params.id}`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/appointment?id=${route.params.id}`, {
     method: "PUT",
     headers: {
             'Content-Type': 'application/json'

@@ -21,6 +21,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
+const config = useRuntimeConfig();
+
 definePageMeta({
     middleware: "auth",
     layout: "employee-layout"
@@ -29,7 +31,7 @@ definePageMeta({
 
 const calendarOptions = ref({
     plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
-    initialView: 'dayGridWeek',
+    initialView: 'timeGridWeek',
     selectable: true,
       firstDay: 1,
       slotMinTime: '07:00',
@@ -74,7 +76,7 @@ const selectedAppID = ref(null);
 
 const getAppointments = async () => {
 
-    const response = await fetch('http://localhost:5000/employee/appointments', {
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/appointments`, {
     credentials: "include",
     });
 
@@ -87,7 +89,6 @@ const getAppointments = async () => {
     };
 
     for (let i = 0; i < data.appointments.length; i++) {
-        console.log(new Date(data.appointments[i].appdate).toLocaleDateString('en-UK').replace(/\//g, '-'));
 
         const newEvent = {
         id: data.appointments[i].id,
