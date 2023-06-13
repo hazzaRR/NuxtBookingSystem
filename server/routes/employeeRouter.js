@@ -265,6 +265,24 @@ router.put('/appointment', authenticateEmployee, async(req, res) => {
 
 });
 
+router.delete('/appointment', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { id } = req.query;
+
+        const appointment = await pool.query("DELETE FROM appointment WHERE id = $1", [id]);
+
+        return res.json({message: "Success deleting appointment"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+});
+
 
 
     

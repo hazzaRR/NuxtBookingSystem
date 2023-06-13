@@ -118,29 +118,65 @@ const updateBooking = async (event) => {
 
     console.log(selectedService.value)
 
-    const response = await fetch(`${config.public.API_BASE_URL}/employee/appointment?id=${route.params.id}`, {
-    method: "PUT",
-    headers: {
-            'Content-Type': 'application/json'
-        },
-    credentials: "include",
-    body: JSON.stringify({
-        appDate: appDate.value,
-        startTime: startTime.value,
-        endTime: endTime.value,
-        serviceid: selectedService.value
-    })
-    });
 
-    const data = await response.json();
+    try {
+        
+        
+        const response = await fetch(`${config.public.API_BASE_URL}/employee/appointment?id=${route.params.id}`, {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                appDate: appDate.value,
+                startTime: startTime.value,
+                endTime: endTime.value,
+                serviceid: selectedService.value
+            })
+        });
+        
+        const data = await response.json();
 
-    if (response.status === 200) {
+        if (response.status === 200) {
+            
+            console.log(data.message);
+        };
 
-        console.log(data.message);
-    };
-
+    } catch (error) {
+        console.log(error);
+    }
+        
 };
 
+const deleteBooking = async (event) => {
+
+    event.preventDefault();
+
+    try {
+
+        const response = await fetch(`${config.public.API_BASE_URL}/employee/appointment?id=${route.params.id}`, {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+        });
+        
+        const data = await response.json();
+
+        if (response.status === 200) {
+            console.log(data.message);
+        };
+        
+    } catch (error) {
+        
+    }
+
+
+
+};
+    
 
 
 
