@@ -20,7 +20,7 @@
 
 const config = useRuntimeConfig();
 
-const props = defineProps(['currentEmail']);
+const props = defineProps(['currentEmail', 'route']);
 
 const email = ref();
 const password = ref('');
@@ -40,8 +40,7 @@ const UpdateEmail = async (event) => {
         return;
     }
 
-
-    const response = await fetch(`${config.public.API_BASE_URL}/employee/update-email`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-email`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'

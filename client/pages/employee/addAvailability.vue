@@ -2,10 +2,10 @@
     <div>
     <label>Date:</label>
     <div class="relative mb-6">
-    <input type="date" v-model="selectedDate"  class="input input-bordered w-full max-w-xs"/>
+    <input type="date" v-model="selectedDate" class="input input-bordered w-full max-w-xs"/>
     </div>
     <div class="relative mb-6">
-    <input type="number" v-model="defaultSlotLength"  class="input input-bordered w-full max-w-xs"/>
+    <input type="number" v-model="defaultSlotLength" class="input input-bordered w-full max-w-xs"/>
     </div>
 
     <table>

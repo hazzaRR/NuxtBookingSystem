@@ -11,13 +11,13 @@
 
 
         <div v-if="setting === 'updateEmail'">
-            <ChangeEmail :currentEmail="email" route="employee"/>
+            <ChangeEmail :currentEmail="email" route="client"/>
         </div>
         <div v-else-if="setting === 'updatePassword'">
-            <ChangePassword  route="employee"/>
+            <ChangePassword route="client" />
         </div>
         <div v-else-if="setting === 'updatePersonalDetails'">
-            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="employee"/>
+            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="client"/>
         </div>
 
     </div>

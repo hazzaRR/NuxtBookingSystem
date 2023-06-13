@@ -69,6 +69,25 @@ const reauthenticateClient = async (req, res, next) => {
 
 };
 
+router.get('/account-details', authenticateClient, async(req, res) => {
+    const user = req.user;
+
+    try {
+
+        const account = await pool.query("SELECT id, email, firstname, surname, telephone from client WHERE ID = $1", [user.id]);
+
+        const decryptedEmail  = CryptoJS.AES.decrypt(account.rows[0].email, crykey,{ iv: iv });
+        account.rows[0].email = decryptedEmail.toString(CryptoJS.enc.Utf8);
+
+        res.json({message: "Successfully fetched account details", account: account.rows[0]});
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error getting user"});
+    }
+
+});
+
 router.delete('/delete-account', authenticateClient, reauthenticateClient, async (req, res) => {
 
     const user = req.user;

@@ -22,6 +22,8 @@
 <script setup>
 const config = useRuntimeConfig();
 
+const props = defineProps(['route']);
+
 
 const password = ref('');
 const newPassword = ref('');
@@ -37,7 +39,7 @@ const UpdatePassword = async (event) => {
         return;
     }
 
-    const response = await fetch(`${config.public.API_BASE_URL}/employee/update-password`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-password`, {
         method: "PUT",
         headers: {
             'Content-Type': 'application/json'

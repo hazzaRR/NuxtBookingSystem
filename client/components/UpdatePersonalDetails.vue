@@ -23,7 +23,7 @@
 <script setup>
 
 const config = useRuntimeConfig();
-const props = defineProps(['currentFirstname', 'currentSurname', 'currentTelephone']);
+const props = defineProps(['currentFirstname', 'currentSurname', 'currentTelephone', 'route']);
 
 const firstname = ref('');
 const surname = ref('');
@@ -45,7 +45,7 @@ const updateDetails = async (event) => {
         telephone: telephone.value
     };
 
-    const response = await fetch(`${config.public.API_BASE_URL}/employee/update-account`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-account`, {
         method: 'PUT',
         headers: {
                 'Content-Type': 'application/json'
