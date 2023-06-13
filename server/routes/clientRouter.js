@@ -176,11 +176,39 @@ router.get('/appointments', authenticateClient, async (req, res) => {
 
         const user = req.user;
 
-        const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), starttime, endtime, employee.firstname, employee.surname FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN client ON appointment.clientid = client.id WHERE client.id = $1 and appdate >= $2", [user.id, new Date()]);
+        const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), starttime, endtime, employee.firstname, employee.surname, service.servicename, service.price FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN client ON appointment.clientid = client.id INNER JOIN service ON appointment.serviceid = service.id WHERE client.id = $1 and appdate >= $2", [user.id, new Date()]);
 
         console.log(appointments.rows)
 
         res.json({message: "appointments succssfully fetched", appointments: appointments.rows})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error fetching from server"});
+    }
+
+
+
+});
+
+router.delete('/appointment', authenticateClient, async (req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        const {id} = req.query;
+
+        const appointment = await pool.query("DELETE FROM appointment WHERE id = $1 RETURNING CAST(appDate AS TEXT), starttime, endtime, employeeid", [id]);
+
+        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE availabilitydate = $2 AND starttime = $3 AND endtime = $4 AND employeeid = $5 RETURNING *", [true, appointment.rows[0].appdate, appointment.rows[0].starttime, appointment.rows[0].endtime, appointment.rows[0].employeeid]);
+
+
+        if (updateAvailabilty.rowCount === 0) {
+            const createAvailabilty = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5)", [appointment.rows[0].employeeid, appointment.rows[0].appdate, appointment.rows[0].starttime, appointment.rows[0].endtime, true]);
+        }
+
+        res.json({message: "Appointment Cancelled"});
 
     } catch (error) {
         console.log(error);

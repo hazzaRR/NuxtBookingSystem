@@ -296,7 +296,7 @@ const AppointmentObject = {
     "appointments": [
             {
               "ID": 1,
-              "appDate": "2023-06-12",
+              "appDate": "2023-06-18",
               "startTime": "09:00:00",
               "endTime": "10:00:00",
               "clientID": 1,
@@ -305,7 +305,7 @@ const AppointmentObject = {
             },
             {
               "ID": 2,
-              "appDate": "2023-06-12",
+              "appDate": "2023-06-13",
               "startTime": "10:30:00",
               "endTime": "11:30:00",
               "clientID": 2,
@@ -314,7 +314,7 @@ const AppointmentObject = {
             },
             {
               "ID": 3,
-              "appDate": "2023-06-13",
+              "appDate": "2023-06-19",
               "startTime": "14:00:00",
               "endTime": "15:00:00",
               "clientID": 1,

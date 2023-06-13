@@ -18,7 +18,6 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
-// app.use(express.static('public'));
 
 app.get('/auth-check', async (req, res) => {
 
@@ -219,7 +218,6 @@ app.post("/employee/register", async (req, res) => {
     }
 
 });
-
 
 app.get("/services", async (req, res) => {
 
