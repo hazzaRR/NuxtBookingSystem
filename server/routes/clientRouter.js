@@ -50,12 +50,11 @@ const reauthenticateClient = async (req, res, next) => {
 
     const user = req.user;
 
-    const username = user.username;
-
     const { password } = req.body;
-    const hashEmail = CryptoJS.AES.encrypt(user.email, crykey,{ iv: iv }).toString();
+
+    
     //find user in the databse and return their details
-    const info = await pool.query('SELECT * FROM client WHERE email = $1', [hashEmail])
+    const info = await pool.query('SELECT * FROM client WHERE id = $1', [user.id])
 
     //check the password the user provided matches their stored password, if they don't return
     //unauthorised code to user, if it is continue with server change
@@ -108,11 +107,11 @@ router.put('/update-account', authenticateClient, authenticateClient, async (req
 
     const user = req.user;
 
-    const {email, firstname, surname, telephone} = req.body;
+    const {firstname, surname, telephone} = req.body;
 
     try {
 
-        const updateAccount = await pool.query("UPDATE client SET email = $1, firstname = $2, surname = $3, telephone = $4 WHERE ID = $5", [hashEmail, firstname, surname, telephone, user.id]);
+        const updateAccount = await pool.query("UPDATE client SET firstname = $1, surname = $2, telephone = $3 WHERE ID = $4", [firstname, surname, telephone, user.id]);
 
         res.json({message: "Client details successfully updated"});
 
@@ -122,7 +121,8 @@ router.put('/update-account', authenticateClient, authenticateClient, async (req
     }
 });
 
-router.put('/change-password', authenticateClient, authenticateClient, async (req, res) => {
+router.put('/update-password', authenticateClient, reauthenticateClient, async (req, res) => {
+
 
     try {
 
@@ -131,7 +131,7 @@ router.put('/change-password', authenticateClient, authenticateClient, async (re
         let {newPassword, reEnteredNewPassword} = req.body;
 
         if (newPassword !== reEnteredNewPassword) {
-            return res.status(403).json("Password do not match");
+            return res.status(403).json({message:"Password do not match"});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -140,11 +140,33 @@ router.put('/change-password', authenticateClient, authenticateClient, async (re
         const updatedAccount = await pool.query(`UPDATE client SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
 
         console.log("Account password successfully updated");
-        res.json("Account password successfully updated")
+        res.json({message:"Account password successfully updated"})
 
     } catch (err) {
         console.error(err.message);
-        res.json({message:"Error updating client password"});
+        res.json({message:"Error updating employee password"});
+    }
+});
+
+router.put('/update-email', authenticateClient, reauthenticateClient, async (req, res) => {
+
+
+    try {
+
+        const user = req.user;
+        let accountid = user.id;
+        let {email} = req.body;
+
+        const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
+        //find user in database with that id and update their  password
+        const updatedAccount = await pool.query(`UPDATE client SET email = $1 WHERE ID = $2`, [hashEmail, accountid]);
+
+        console.log("Account email successfully updated");
+        res.json({message: "Account email successfully updated"})
+
+    } catch (err) {
+        console.error(err.message);
+        res.json({message:"Error updating employee password"});
     }
 });
 
