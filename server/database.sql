@@ -39,7 +39,8 @@ CREATE TABLE employee_availability (
     StartTime TIME,
     EndTime TIME,
     available BOOLEAN NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES employee(ID)
+    FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
+    CONSTRAINT unique_availability UNIQUE (EmployeeID, AvailabilityDate, StartTime, EndTime)
 );
 
 CREATE TABLE appointment (

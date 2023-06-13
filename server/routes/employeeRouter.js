@@ -103,6 +103,8 @@ router.post("/add-availability", authenticateEmployee, async (req, res) => {
 
     const user = req.user;
     let {date, slots} = req.body;
+    console.log(date);
+    console.log(slots);
     try {
         for (let i = 0; i < slots.length; i++) {
 
@@ -110,11 +112,16 @@ router.post("/add-availability", authenticateEmployee, async (req, res) => {
 
         };
 
-        res.json({message: "Availability Successfully added"});
+        return res.json({message: "Availability Successfully added"});
 
     } catch (err) {
-        console.error(err.message);
-        res.json({message:"Error creating user"});
+        console.error(err.detail);
+
+        if (err.code === '23505') {
+            return res.status(409).json({message:"Time slot already exists"});
+        };
+
+        return res.status(500).json({message:"Error creating user"});
     }
 
 });
@@ -217,6 +224,27 @@ router.get('/appointments', authenticateEmployee, async(req, res) => {
     } catch (error) {
         console.log(error)
         return res.json({message: "Error fetching data from database"});
+    }
+
+});
+
+router.get('/availability', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        const { date } = req.query;
+
+        console.log(date)
+
+        const availability = await pool.query("SELECT employee_availability.StartTime, employee_availability.EndTime, employee_availability.available FROM employee_availability WHERE employee_availability.availabilitydate = $1 and employee_availability.employeeId = $2", [date,user.id]);
+
+        return res.json({message: "Success fetching current availability", availability:availability.rows})
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({message: "Error fetching data from database"});
     }
 
 });

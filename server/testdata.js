@@ -57,7 +57,8 @@ const createTables = async () => {
             StartTime TIME,
             EndTime TIME,
             available BOOLEAN NOT NULL,
-            FOREIGN KEY (EmployeeID) REFERENCES employee(ID)
+            FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
+            CONSTRAINT unique_availability UNIQUE (EmployeeID, AvailabilityDate, StartTime, EndTime)
         );
         
         CREATE TABLE appointment (
@@ -278,7 +279,7 @@ const employeeObject = {
           {
             "firstname": "Jane",
             "surname": "Smith",
-            "email": "janesmith@example.com",
+            "email": "janesmith1@example.com",
             "password": "secretpass",
             "telephone": "9876543210"
           },
