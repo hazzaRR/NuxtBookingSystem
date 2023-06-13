@@ -52,7 +52,7 @@ const reauthenticateClient = async (req, res, next) => {
 
     const { password } = req.body;
 
-    
+
     //find user in the databse and return their details
     const info = await pool.query('SELECT * FROM client WHERE id = $1', [user.id])
 
@@ -168,6 +168,27 @@ router.put('/update-email', authenticateClient, reauthenticateClient, async (req
         console.error(err.message);
         res.json({message:"Error updating employee password"});
     }
+});
+
+router.get('/appointments', authenticateClient, async (req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), starttime, endtime, employee.firstname, employee.surname FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN client ON appointment.clientid = client.id WHERE client.id = $1 and appdate >= $2", [user.id, new Date()]);
+
+        console.log(appointments.rows)
+
+        res.json({message: "appointments succssfully fetched", appointments: appointments.rows})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error fetching from server"});
+    }
+
+
+
 });
 
 
