@@ -243,7 +243,7 @@ app.get("/available-employees", async (req, res) => {
 
         console.log(date)
 
-        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1", [date]);
+        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.available = $2", [date, true]);
 
 
         return res.json({message:"Employees Successfully fetched", employees: getEmployees.rows})
@@ -259,10 +259,12 @@ app.get("/available-appointments", async (req, res) => {
 
     try {
 
-        const getServices = await pool.query("SELECT employee_availability.starttime, employee_availability.starttime, employee.firstname, employee.lastname FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1", [date]);
+        const {date, id} = req.query;
+
+        const getAvailability = await pool.query("SELECT employee_availability.starttime, employee_availability.endtime FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.employeeid = $2 AND employee_availability.available = $3", [date, id, true]);
 
 
-        return res.json({message:"Services fetched successfully", services: getServices.rows})
+        return res.json({message:"Services fetched successfully", availability: getAvailability.rows})
         
     } catch (error) {
         return res.status(500).json({message:"Error accessing database"});
