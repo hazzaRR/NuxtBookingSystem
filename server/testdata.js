@@ -206,6 +206,29 @@ const createServices = async () => {
     }
 };
 
+const createAvailability = async (AppointmentObject) => {
+
+    try {
+
+        for (let index in AppointmentObject.availability) {
+            let availability = AppointmentObject.availability[index];
+
+            console.log(availability);
+    
+            const createAvailability = await pool.query("INSERT INTO employee_availability (employeeid, availabilityDate, startTime, endTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [availability.EmployeeID, availability.AvailabilityDate, availability.StartTime, availability.EndTime, availability.available]);
+          
+        };
+
+          console.log("Availability created")
+
+          return;
+        
+    } catch (error) {
+        console.error(error);
+    }
+
+};
+
 const createAppointments = async (AppointmentObject) => {
 
     try {
@@ -294,21 +317,51 @@ const employeeObject = {
 }
 
 const AppointmentObject = {
+    "availability": [
+            {
+              "EmployeeID": 1,
+              "AvailabilityDate": "2023-06-14",
+              "StartTime": "09:00:00",
+              "EndTime": "09:30:00",
+              "available": true
+            },
+            {
+              "EmployeeID": 1,
+              "AvailabilityDate": "2023-06-14",
+              "StartTime": "13:00:00",
+              "EndTime": "13:30:00",
+              "available": true
+            },
+            {
+              "EmployeeID": 2,
+              "AvailabilityDate": "2023-06-15",
+              "StartTime": "08:30:00",
+              "EndTime": "11:30:00",
+              "available": false
+            },
+            {
+              "EmployeeID": 3,
+              "AvailabilityDate": "2023-06-15",
+              "StartTime": "14:00:00",
+              "EndTime": "16:30:00",
+              "available": true
+            }
+    ],
     "appointments": [
             {
               "ID": 1,
-              "appDate": "2023-06-18",
-              "startTime": "09:00:00",
-              "endTime": "10:00:00",
+              "appDate": "2023-06-14",
+              "startTime": "13:00:00",
+              "endTime": "13:30:00",
               "clientID": 1,
               "employeeID": 1,
               "serviceID": 1
             },
             {
               "ID": 2,
-              "appDate": "2023-06-13",
-              "startTime": "10:30:00",
-              "endTime": "11:30:00",
+              "appDate": "2023-06-14",
+              "StartTime": "09:00:00",
+              "EndTime": "09:30:00",
               "clientID": 2,
               "employeeID": 2,
               "serviceID": 2
@@ -332,6 +385,7 @@ const main = async () => {
       await createEmployees(employeeObject);
       await createClient(ClientObject);
       await createServices();
+      await createAvailability(AppointmentObject);
       await createAppointments(AppointmentObject);
       process.exit(0);
     } catch (error) {

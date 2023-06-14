@@ -232,7 +232,42 @@ app.get("/services", async (req, res) => {
     } catch (error) {
         return res.status(500).json({message:"Error accessing database"});
     }
-})
+});
+
+app.get("/available-employees", async (req, res) => {
+
+
+    try {
+
+        const {date} = req.query;
+
+        console.log(date)
+
+        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1", [date]);
+
+
+        return res.json({message:"Employees Successfully fetched", employees: getEmployees.rows})
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message:"Error accessing database"});
+    }
+});
+
+app.get("/available-appointments", async (req, res) => {
+
+
+    try {
+
+        const getServices = await pool.query("SELECT employee_availability.starttime, employee_availability.starttime, employee.firstname, employee.lastname FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1", [date]);
+
+
+        return res.json({message:"Services fetched successfully", services: getServices.rows})
+        
+    } catch (error) {
+        return res.status(500).json({message:"Error accessing database"});
+    }
+});
 
 const adminRouter = require('./routes/adminRouter');
 const employeeRouter = require('./routes/employeeRouter');
