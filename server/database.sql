@@ -53,7 +53,8 @@ CREATE TABLE appointment (
     serviceID INTEGER NOT NULL,
     FOREIGN KEY (ClientID) REFERENCES client(ID),
     FOREIGN KEY (employeeID) REFERENCES employee(ID),
-    FOREIGN KEY (serviceID) REFERENCES service(ID)
+    FOREIGN KEY (serviceID) REFERENCES service(ID),
+    CONSTRAINT unique_appointment UNIQUE (EmployeeID, appDate, StartTime, EndTime)
 );
 
 

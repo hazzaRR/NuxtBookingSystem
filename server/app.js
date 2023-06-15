@@ -93,6 +93,8 @@ app.post("/login", async (req, res) => {
 
     let {email,password} = req.body;
 
+    console.log(email)
+
     try {
 
         //Encrypts email and then checks it against the database

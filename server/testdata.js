@@ -62,17 +62,18 @@ const createTables = async () => {
         );
         
         CREATE TABLE appointment (
-            ID SERIAL PRIMARY KEY,
-            appDate DATE,
-            startTime TIME,
-            endTime TIME,
-            clientID INTEGER NOT NULL,
-            employeeID INTEGER NOT NULL,
-            serviceID INTEGER NOT NULL,
-            FOREIGN KEY (ClientID) REFERENCES client(ID),
-            FOREIGN KEY (employeeID) REFERENCES employee(ID),
-            FOREIGN KEY (serviceID) REFERENCES service(ID)
-        );
+          ID SERIAL PRIMARY KEY,
+          appDate DATE,
+          startTime TIME,
+          endTime TIME,
+          clientID INTEGER NOT NULL,
+          employeeID INTEGER NOT NULL,
+          serviceID INTEGER NOT NULL,
+          FOREIGN KEY (ClientID) REFERENCES client(ID),
+          FOREIGN KEY (employeeID) REFERENCES employee(ID),
+          FOREIGN KEY (serviceID) REFERENCES service(ID),
+          CONSTRAINT unique_appointment UNIQUE (EmployeeID, appDate, StartTime, EndTime)
+      );
         
         
         CREATE DOMAIN user_type_domain AS VARCHAR(20)
