@@ -219,7 +219,7 @@ router.delete('/appointment', authenticateClient, async (req, res) => {
 
 });
 
-app.post("/book-slot", authenticateClient, async (req, res) => {
+router.post("/book-slot", authenticateClient, async (req, res) => {
 
 
     try {
@@ -228,14 +228,21 @@ app.post("/book-slot", authenticateClient, async (req, res) => {
 
         const {date, employeeID, serviceID, slot} = req.body;
 
+        console.log(user.id)
+        console.log(date)
+        console.log(employeeID)
+        console.log(serviceID)
+        console.log(slot)
+
         const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot.starttime, slot.endtime, employeeID, serviceID, user.id]);
 
-        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE AvailabilityDate $2 AND starttime = $2 AND endtime = $3 AND employeeID = $4 RETURNING *", [false, date, slot.starttime, slot.endtime, employeeID]);
+        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE AvailabilityDate = $2 AND starttime = $3 AND endtime = $4 AND employeeID = $5 RETURNING *", [false, date, slot.starttime, slot.endtime, employeeID]);
 
-        
+
         return res.json({message:"Booking Confirmed"})
         
     } catch (error) {
+        console.log(error)
         return res.status(500).json({message:"Error accessing database"});
     }
 });

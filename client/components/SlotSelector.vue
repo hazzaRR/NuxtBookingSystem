@@ -22,7 +22,7 @@
 <script setup>
 
 // const emits = defineEmits(['update:selectedSlot']);
-const props = defineProps(['selectedDate', 'selectedEmployeeID'])
+const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID'])
 const config = useRuntimeConfig();
 
 const availableSlots = ref(null);
@@ -60,11 +60,30 @@ const isSelected = (slot) => {
       return selectedSlot.value === slot;
 };
 
-const BookSlot = () => {
+const BookSlot = async () => {
 
-    console.log(props.selectedDate);
-    console.log(props.selectedEmployeeID);
-    console.log(selectedSlot.value);
+    const response = await fetch(`${config.public.API_BASE_URL}/client/book-slot`, 
+    {
+        method: "POST",
+        headers: {
+                'Content-Type': 'application/json'
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            date: props.selectedDate,
+            employeeID: props.selectedEmployeeID,
+            serviceID: props.selectedServiceID,
+            slot: selectedSlot.value
+        })
+    });
+
+    const data = await response.json();
+
+        if (response.status === 200) {
+
+            console.log("hello")
+
+        }
 };
 
 </script>

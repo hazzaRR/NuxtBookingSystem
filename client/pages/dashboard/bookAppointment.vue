@@ -26,7 +26,7 @@
     </div>
 
     <div v-else>
-      <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID"/>
+      <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID"/>
     </div>
 
 
