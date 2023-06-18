@@ -5,12 +5,13 @@
 
         <p v-if="selectedServiceID">{{ selectedServiceID }}</p>
         <p v-if="selectedEmployeeID">{{ selectedEmployeeID }}</p>
+        <p v-if="selectedSlot">{{ selectedSlot }}</p>
 
         <button class="btn" :disabled="stage === 1" @click="prevStage">Back</button>
         <button class="btn" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
 
     <div v-if="stage === 1">
-      <ServiceForm @update:selectedServiceID="selectedServiceID = $event"/>
+      <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
     </div>
 
     <div v-else-if="stage === 2">
@@ -21,11 +22,11 @@
     </div>
 
     <div v-else-if="stage === 3">
-      <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" />
+      <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
     </div>
 
     <div v-else>
-      <AppointmentSelector />
+      <AppointmentSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID"/>
     </div>
 
 

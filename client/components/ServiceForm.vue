@@ -19,10 +19,11 @@
 
 <script setup>
 const emits = defineEmits(['update:selectedServiceID']);
+const props = defineProps(['selectedServiceID']);
 const config = useRuntimeConfig();
 
 
-const selectedServiceID = ref(null);
+const selectedServiceID = ref(props.selectedServiceID);
 const availableServices = ref(null);
 
 const getServices = async () => {

@@ -19,11 +19,11 @@
 <script setup>
 
 const emits = defineEmits(['update:selectedEmployeeID']);
-const props = defineProps(['selectedDate'])
+const props = defineProps(['selectedDate', 'selectedEmployeeID'])
 const config = useRuntimeConfig();
 
 const availableEmployees = ref(null);
-const selectedEmployeeID = ref(null);
+const selectedEmployeeID = ref(props.selectedEmployeeID);
 
 const getEmployees = async () => {
 

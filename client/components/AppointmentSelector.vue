@@ -1,15 +1,18 @@
 <template>
     <div>
 
-    <div v-if="!availableAppointments">No Slots currently available on that day</div>
+    <div v-if="!availableSlots">No Slots currently available on that day</div>
     <div v-else>
         <div
             v-for="(slot, index) in availableSlots"
             :key="index"
             @click="selectSlot(slot)"
-            :class="['border', 'hover:bg-gray-100', isSelected(slot.id) ? 'border-blue-500' : 'border-blue-100', isSelected(slot.id) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'm-2']">
-            <p>{{ `${slot.starttime} ${slot.endtime}` }}</p>
+            :class="['border', 'hover:bg-gray-100', isSelected(slot) ? 'border-blue-500' : 'border-blue-100', isSelected(slot) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'm-2', 'text-center']">
+            <p>{{ `${slot.starttime.slice(0,5)} - ${slot.endtime.slice(0,5)}` }}</p>
         </div>
+
+
+        <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary" :disabled="!selectedSlot" @click="BookSlot">Book</button>
 
     </div>
 
@@ -18,7 +21,7 @@
 
 <script setup>
 
-const emits = defineEmits(['update:selectedSlot']);
+// const emits = defineEmits(['update:selectedSlot']);
 const props = defineProps(['selectedDate', 'selectedEmployeeID'])
 const config = useRuntimeConfig();
 
@@ -28,8 +31,6 @@ const selectedSlot = ref(null);
 const getSlot = async () => {
 
 try {
-
-
     const response = await fetch(`${config.public.API_BASE_URL}/available-slots?date=${props.selectedDate}&id=${props.selectedEmployeeID}`, {
     credentials: "include",
     });
@@ -37,8 +38,8 @@ try {
     const data = await response.json();
 
     if (response.status === 200) {
-        console.log(data.slots);
-        availableSlots.value = data.slots;
+        console.log(data.availability);
+        availableSlots.value = data.availability;
     };
     
 } catch (error) {
@@ -52,11 +53,18 @@ onBeforeMount(() => {
 
 const selectSlot = (slot) => {
     selectedSlot.value = slot;
-    emits('update:selectedSlot', slot);
+    // emits('update:selectedSlot', slot);
 };
 
 const isSelected = (slot) => {
       return selectedSlot.value === slot;
+};
+
+const BookSlot = () => {
+
+    console.log(props.selectedDate);
+    console.log(props.selectedEmployeeID);
+    console.log(selectedSlot.value);
 };
 
 </script>
