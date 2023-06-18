@@ -26,7 +26,7 @@
     </div>
 
     <div v-else>
-      <AppointmentSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID"/>
+      <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID"/>
     </div>
 
 
