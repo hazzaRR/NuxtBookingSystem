@@ -230,8 +230,9 @@ app.post("/book-slot", authenticateClient, async (req, res) => {
 
         const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot.starttime, slot.endtime, employeeID, serviceID, user.id]);
 
+        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE AvailabilityDate $2 AND starttime = $2 AND endtime = $3 AND employeeID = $4 RETURNING *", [false, date, slot.starttime, slot.endtime, employeeID]);
 
-    
+        
         return res.json({message:"Booking Confirmed"})
         
     } catch (error) {
