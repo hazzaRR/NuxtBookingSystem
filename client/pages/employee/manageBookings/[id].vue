@@ -1,7 +1,7 @@
 <template>
     <div>
 
-       <div v-if="loading" class="">
+       <div v-if="loading">
         <span class="loading loading-spinner loading-lg"></span>
        </div>
 

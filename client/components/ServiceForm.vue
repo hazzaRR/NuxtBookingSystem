@@ -3,11 +3,14 @@
 
         <div v-if="!availableServices">No Services currently available</div>
         <div v-else>
-
-            <div v-for="(service, index) in availableServices" :key="index" @click="selectService(service.id)">
-                <p>{{ service.servicename }}</p>
-                <p>{{ service.price }}</p>
-            </div>
+    <div
+      v-for="(service, index) in availableServices"
+      :key="index"
+      @click="selectService(service.id)"
+      :class="['border', 'hover:bg-gray-100', isSelected(service.id) ? 'border-blue-500' : 'border-blue-100', isSelected(service.id) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'm-2']">
+      <p>{{ service.servicename }}</p>
+      <p>{{ service.price }}</p>
+    </div>
 
         </div>
 
@@ -15,9 +18,11 @@
 </template>
 
 <script setup>
+const emits = defineEmits(['update:selectedServiceID']);
 const config = useRuntimeConfig();
 
-const selectedService = ref(null);
+
+const selectedServiceID = ref(null);
 const availableServices = ref(null);
 
 const getServices = async () => {
@@ -46,7 +51,12 @@ onBeforeMount(() => {
 })
 
 const selectService = (serviceID) => {
-    selectedService.value = serviceID;
+    selectedServiceID.value = serviceID;
+    emits('update:selectedServiceID', serviceID);
+};
+
+const isSelected = (serviceID) => {
+      return selectedServiceID.value === serviceID;
 };
 
 

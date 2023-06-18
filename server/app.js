@@ -242,12 +242,10 @@ app.get("/available-employees", async (req, res) => {
     try {
 
         const {date} = req.query;
-
-        console.log(date)
-
+        
         const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.available = $2", [date, true]);
 
-
+        console.log(getEmployees.rows)
         return res.json({message:"Employees Successfully fetched", employees: getEmployees.rows})
         
     } catch (error) {

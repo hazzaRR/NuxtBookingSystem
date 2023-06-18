@@ -12,7 +12,7 @@
         <span>{{serverMessage}}</span>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto p-10">
             <table class="table">
                 <thead>
                     <tr>

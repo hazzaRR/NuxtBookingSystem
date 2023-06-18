@@ -321,28 +321,28 @@ const AppointmentObject = {
     "availability": [
             {
               "EmployeeID": 1,
-              "AvailabilityDate": "2023-06-14",
+              "AvailabilityDate": new Date().toISOString().slice(0,10),
               "StartTime": "09:00:00",
               "EndTime": "09:30:00",
               "available": true
             },
             {
               "EmployeeID": 1,
-              "AvailabilityDate": "2023-06-14",
+              "AvailabilityDate": new Date().toISOString().slice(0,10),
               "StartTime": "13:00:00",
               "EndTime": "13:30:00",
               "available": true
             },
             {
               "EmployeeID": 2,
-              "AvailabilityDate": "2023-06-15",
+              "AvailabilityDate": new Date().toISOString().slice(0,10),
               "StartTime": "08:30:00",
               "EndTime": "11:30:00",
               "available": false
             },
             {
               "EmployeeID": 3,
-              "AvailabilityDate": "2023-06-15",
+              "AvailabilityDate": new Date().toISOString().slice(0,10),
               "StartTime": "14:00:00",
               "EndTime": "16:30:00",
               "available": true
