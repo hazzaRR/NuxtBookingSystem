@@ -6,7 +6,7 @@
         <p v-if="selectedServiceID">{{ selectedServiceID }}</p>
         <p v-if="selectedEmployeeID">{{ selectedEmployeeID }}</p>
 
-        <button class="btn" @click="prevStage">Back</button>
+        <button class="btn" :disabled="stage === 1" @click="prevStage">Back</button>
         <button class="btn" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
 
     <div v-if="stage === 1">
