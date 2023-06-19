@@ -118,7 +118,7 @@ router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (re
     }
 });
 
-router.post("/register-employee", authenticateAdmin, async (req, res) => {
+router.post('/register-employee', authenticateAdmin, async (req, res) => {
 
 
     try {
@@ -165,6 +165,67 @@ router.delete('/delete-employee', authenticateAdmin, async (req, res) => {
         console.error(err.message);
         res.json({message:"Error deleting employee"});
     }
+});
+
+router.post('/add-service', authenticateAdmin, async (req, res) => {
+
+    try {
+
+        const {servicename, price} = req.body;
+
+
+        const addService = await pool.query('INSERT into service (servicename, price) VALUES ($1, $2)', [servicename, price]);
+
+
+        return res.json({message: "Service added succesfully"});
+        
+    } catch (error) {
+        
+        return res.status(500).json({message: "Error accessing database"});
+    }
+
+
+});
+
+router.delete('/delete-service', authenticateAdmin, async (req, res) => {
+
+    try {
+
+        const {id} = req.body;
+
+
+        const deleteService = await pool.query('DELETE from service WHERE id = $1', [id]);
+
+
+        return res.json({message: "Service deleted succesfully"});
+        
+    } catch (error) {
+        
+        return res.status(500).json({message: "Error accessing database"});
+    }
+
+
+});
+
+router.put('update-service', authenticateAdmin, async (req, res) => {
+
+    try {
+
+        const {id, servicename, price} = req.body;
+
+
+        const updateService = await pool.query('UPDATE service set service name = $1, price = $2 WHERE id = $3', [servicename, price, id]);
+
+
+        return res.json({message: "Service deleted succesfully"});
+        
+    } catch (error) {
+        
+        return res.status(500).json({message: "Error accessing database"});
+    }
+
+
+
 });
 
 

@@ -79,6 +79,24 @@ const validate_csrfToken = async (req, res, next) => {
     }
 };
 
+app.get("/csrf-token", async (req, res) => {
+
+    try {
+        //find csrf token for the given session and return it to client frontend
+        const {auth_token} = req.cookies;
+        const storedCsrfToken = await pool.query('SELECT csrf_token FROM user_sessions WHERE session_id = $1', [auth_token]);
+
+        console.log(storedCsrfToken.rows[0].csrf_token);
+
+        return res.json({ message: "CSRF TOKEN fetched successfully", csrf_token: storedCsrfToken.rows[0].csrf_token});
+
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({message:'Error fetching CSRF token'});
+    }
+
+});
+
 app.post("/register", async (req, res) => {
 
     try {
