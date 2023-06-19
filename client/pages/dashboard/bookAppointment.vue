@@ -3,40 +3,50 @@
 
         <h1>Book an Appointment</h1>
 
-        <p v-if="selectedServiceID">{{ selectedServiceID }}</p>
-        <p v-if="selectedEmployeeID">{{ selectedEmployeeID }}</p>
-        <p v-if="selectedSlot">{{ selectedSlot }}</p>
+        <div v-if="successMessage" class="alert alert-success max-w-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>{{serverMessage}}</span>
+        </div>
+        <div v-if="errorMessage" class="alert alert-error max-w-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        <span>{{serverMessage}}</span>
+        </div>
 
-        <button class="btn" :disabled="stage === 1" @click="prevStage">Back</button>
-        <button class="btn" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
 
-    <div v-if="stage === 1">
-      <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
+      <div class="w-10/12 border rounded-md mx-auto border-blue-100">
+        
+        
+        <button class="btn mx-1 my-4" :disabled="stage === 1" @click="prevStage">Back</button>
+        <button class="btn mx-1 my-4" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
+        
+        <div v-if="stage === 1">
+          <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
     </div>
 
     <div v-else-if="stage === 2">
       <label>Date:</label>
-    <div class="relative mb-6">
-    <input type="date" v-model="selectedDate" class="input input-bordered w-full max-w-xs"/>
+      <div class="mx-auto">
+        <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs"/>
+      </div>
     </div>
-    </div>
-
+    
     <div v-else-if="stage === 3">
       <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
     </div>
-
+    
     <div v-else>
       <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID"/>
     </div>
-
-
-        <!-- <div class="border border-blue-300 shadow rounded-md p-4 max-w-sm w-full mx-auto ease-in-out duration-300">
-  <div class="animate-pulse flex space-x-4">
-    <div class="rounded-full bg-slate-200 h-10 w-10"></div>
-    <div class="flex-1 space-y-6 py-1">
-      <div class="h-2 bg-slate-200 rounded"></div>
-      <div class="space-y-3">
-        <div class="grid grid-cols-3 gap-4">
+    
+  </div>
+    
+    <!-- <div class="border border-blue-300 shadow rounded-md p-4 max-w-sm w-full mx-auto ease-in-out duration-300">
+      <div class="animate-pulse flex space-x-4">
+        <div class="rounded-full bg-slate-200 h-10 w-10"></div>
+        <div class="flex-1 space-y-6 py-1">
+          <div class="h-2 bg-slate-200 rounded"></div>
+          <div class="space-y-3">
+            <div class="grid grid-cols-3 gap-4">
           <div class="h-2 bg-slate-200 rounded col-span-2">Hello</div>
           <div class="h-2 bg-slate-200 rounded col-span-1"></div>
         </div>

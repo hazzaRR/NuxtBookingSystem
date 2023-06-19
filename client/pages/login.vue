@@ -1,6 +1,6 @@
 <template>
     <div>
-        <form class="grid place-items-center ">
+        <form class="grid place-items-center mx-auto my-60 border">
         <div class="relative mb-6">
             <input type="text" placeholder="email" class="input input-bordered w-full max-w-xs" v-model="email"  required/>
         </div>
