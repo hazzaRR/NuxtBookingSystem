@@ -3,11 +3,11 @@
 
 <h1>Manage Services</h1>
 
-<div v-if="successMessage" class="alert alert-success max-w-sm">
+<div v-if="successMessage" class="alert alert-success max-w-sm my-2">
 <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 <span>{{serverMessage}}</span>
 </div>
-<div v-if="errorMessage" class="alert alert-error max-w-sm">
+<div v-if="errorMessage" class="alert alert-error max-w-sm my-2">
 <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 <span>{{serverMessage}}</span>
 </div>
@@ -62,7 +62,6 @@ onMounted(async () => {
     });
 
     const data = await response.json();
-    console.log(data);
 
     if (response.status === 200) {
         services.value = data.services;
@@ -74,9 +73,41 @@ const editService = (serviceID, index) => {
 
 };
 
-const deleteService = (serviceID, index) => {
+const deleteService = async (serviceID, index) => {
 
+    try {
+        
+        const response = await fetch(`${config.public.API_BASE_URL}/admin/delete-service`, 
+        {
+            method: "DELETE",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify({id: serviceID})
+        });
 
+        const data = await response.json();
+        
+        if (response.status === 200) {
+            services.value.splice(index, 1);
+            successMessage.value = true;
+            errorMessage.value = false;
+            serverMessage.value = data.message;
+        }
+        else if (response.status === 500) {
+            successMessage.value = false;
+            errorMessage.value = true;
+            serverMessage.value = data.message;
+        }
+        
+    } catch (error) {
+        successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = "Error communicating with the server";
+        
+    }
+        
 };
 
 </script>
