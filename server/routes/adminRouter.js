@@ -207,7 +207,7 @@ router.delete('/delete-service', authenticateAdmin, async (req, res) => {
 
 });
 
-router.put('update-service', authenticateAdmin, async (req, res) => {
+router.put('/update-service', authenticateAdmin, async (req, res) => {
 
     try {
 
@@ -217,7 +217,7 @@ router.put('update-service', authenticateAdmin, async (req, res) => {
         const updateService = await pool.query('UPDATE service set service name = $1, price = $2 WHERE id = $3', [servicename, price, id]);
 
 
-        return res.json({message: "Service deleted succesfully"});
+        return res.json({message: "Service updated succesfully"});
         
     } catch (error) {
         
