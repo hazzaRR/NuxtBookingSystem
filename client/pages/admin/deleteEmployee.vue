@@ -1,7 +1,8 @@
 <template>
     <div>
         <h1>Delete Employee</h1>
-        <div class="overflow-x-auto">
+        <div class="flex items-center justify-center">
+            <div class="w-3/4">
             <table class="table">
                 <thead>
                     <tr>
@@ -28,6 +29,7 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
         </div>
             
     </div>

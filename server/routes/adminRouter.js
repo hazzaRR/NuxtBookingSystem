@@ -200,6 +200,7 @@ router.delete('/delete-service', authenticateAdmin, async (req, res) => {
         return res.json({message: "Service deleted succesfully"});
         
     } catch (error) {
+        console.log(error)
         
         return res.status(500).json({message: "Error accessing database"});
     }
