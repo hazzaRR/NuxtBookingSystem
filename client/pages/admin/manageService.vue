@@ -32,7 +32,7 @@
 </dialog>
 
 <div class="flex items-center justify-center">
-<form class="container w-1/2">
+<form class="container w-1/2" @submit.prevent>
         <input type="text" placeholder="Service Name" class="input input-bordered w-full max-w-xs m-2" v-model= "serviceName" required/>
         <input type="number" placeholder="0.00" class="input input-bordered w-full max-w-xs m-2" v-model="price" required/>
         <button class="btn btn-primary" @click="createService">Create</button>      
@@ -91,6 +91,8 @@ const serverMessage = ref('');
 const serviceID = ref(null);
 const editServiceName = ref(null);
 const editprice = ref(null);
+const serviceName = ref(null);
+const price = ref(null);
 
 const getServices = async () => {
 
@@ -203,6 +205,51 @@ const editService = async () => {
     }
 
 
+};
+
+const createService = async () => {
+
+    try {
+        
+        const response = await fetch(`${config.public.API_BASE_URL}/admin/add-service`, 
+        {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify(
+                {
+                    servicename: serviceName.value,
+                    price: price.value
+                })
+        });
+
+        const data = await response.json();
+        
+        if (response.status === 200) {
+            serviceName.value = '';
+            price.value = '';
+            await getServices();
+
+
+            successMessage.value = true;
+            errorMessage.value = false;
+            serverMessage.value = data.message;
+
+        }
+        else if (response.status === 500) {
+            successMessage.value = false;
+            errorMessage.value = true;
+            serverMessage.value = data.message;
+        }
+        
+    } catch (error) {
+        console.log(error)
+        successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = "Error communicating with the server";    
+    }
 };
 
 </script>

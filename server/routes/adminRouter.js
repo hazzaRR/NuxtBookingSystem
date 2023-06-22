@@ -174,7 +174,7 @@ router.post('/add-service', authenticateAdmin, async (req, res) => {
         const {servicename, price} = req.body;
 
 
-        const addService = await pool.query('INSERT into service (servicename, price) VALUES ($1, $2)', [servicename, price]);
+        const addService = await pool.query('INSERT into service (servicename, price) VALUES ($1, $2)', [servicename, price.toFixed(2)]);
 
 
         return res.json({message: "Service added succesfully"});
