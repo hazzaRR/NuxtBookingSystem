@@ -12,15 +12,22 @@
 <span>{{serverMessage}}</span>
 </div>
 
-<!-- Open the modal using ID.showModal() method -->
-<button class="btn" onclick="my_modal_5.showModal()">open modal</button>
-<dialog id="my_modal_5" class="modal modal-bottom sm:modal-middle">
+<dialog id="editServiceModal" class="modal modal-bottom sm:modal-middle">
   <form method="dialog" class="modal-box">
     <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-    <input type="text" v-model="serviceName">
-    <input type="text" v-model="price">
-    <!-- <p class="py-4">Press ESC key or click the button below to close</p> -->
-    <a class="btn btn-error mx-2" @click="editService()">Delete</a>
+    <div class="form-control w-full max-w-xs">
+    <label class="label">
+    <span class="label-text">Service Name</span>
+    </label>
+    <input class="input input-bordered w-full max-w-xs m-2" type="text" v-model="serviceName">
+    </div>
+    <div class="form-control w-full max-w-xs">
+    <label class="label">
+    <span class="label-text">Price</span>
+    </label>
+    <input type="number" class="input input-bordered w-full max-w-xs m-2" v-model="price">
+    </div>
+    <a class="btn btn-primary m-2" @click="editService()">Confirm Changes</a>
 </form>
 </dialog>
 
@@ -77,7 +84,7 @@ const serviceID = ref(null);
 const serviceName = ref(null);
 const price = ref(null);
 
-onMounted(async () => {
+const getServices = async () => {
 
     const response = await fetch(`${config.public.API_BASE_URL}/services`, {
     credentials: "include",
@@ -88,13 +95,18 @@ onMounted(async () => {
     if (response.status === 200) {
         services.value = data.services;
     }
+
+};
+
+onMounted(async () => {
+    await getServices();
 });
 
 const openEditServiceModal = (service) => {
     serviceID.value = service.id;
     serviceName.value = service.servicename;
     price.value = service.price;
-    my_modal_5.showModal();
+    editServiceModal.showModal();
 
 };
 
@@ -133,6 +145,56 @@ const deleteService = async (serviceID, index) => {
         
     }
         
+};
+
+const editService = async () => {
+
+    try {
+        
+        const response = await fetch(`${config.public.API_BASE_URL}/admin/update-service`, 
+        {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: "include",
+            body: JSON.stringify(
+                {
+                    id: serviceID.value,
+                    servicename: serviceName.value,
+                    price: price.value
+                })
+        });
+
+        const data = await response.json();
+        
+        if (response.status === 200) {
+            serviceName.value = '';
+            price.value = '';
+            editServiceModal.close();
+            await getServices();
+
+
+            successMessage.value = true;
+            errorMessage.value = false;
+            serverMessage.value = data.message;
+
+        }
+        else if (response.status === 500) {
+            successMessage.value = false;
+            errorMessage.value = true;
+            serverMessage.value = data.message;
+        }
+        
+    } catch (error) {
+        console.log(error)
+        successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = "Error communicating with the server";
+        
+    }
+
+
 };
 
 </script>

@@ -214,14 +214,18 @@ router.put('/update-service', authenticateAdmin, async (req, res) => {
 
         const {id, servicename, price} = req.body;
 
+        console.log(id);
+        console.log(servicename);
+        console.log(price.toFixed(2));
 
-        const updateService = await pool.query('UPDATE service set service name = $1, price = $2 WHERE id = $3', [servicename, price, id]);
+
+        const updateService = await pool.query('UPDATE service set servicename = $1, price = $2 WHERE id = $3', [servicename, price.toFixed(2), id]);
 
 
         return res.json({message: "Service updated succesfully"});
         
     } catch (error) {
-        
+        console.log(error)
         return res.status(500).json({message: "Error accessing database"});
     }
 

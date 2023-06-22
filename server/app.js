@@ -277,7 +277,7 @@ app.get("/services", async (req, res) => {
 
     try {
 
-        const getServices = await pool.query("SELECT * FROM service");
+        const getServices = await pool.query("SELECT * FROM service ORDER BY servicename ASC");
 
 
         return res.json({message:"Services fetched successfully", services: getServices.rows})
