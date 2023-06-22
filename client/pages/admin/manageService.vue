@@ -19,17 +19,25 @@
     <label class="label">
     <span class="label-text">Service Name</span>
     </label>
-    <input class="input input-bordered w-full max-w-xs m-2" type="text" v-model="serviceName">
+    <input class="input input-bordered w-full max-w-xs m-2" type="text" v-model= "editServiceName">
     </div>
     <div class="form-control w-full max-w-xs">
     <label class="label">
     <span class="label-text">Price</span>
     </label>
-    <input type="number" class="input input-bordered w-full max-w-xs m-2" v-model="price">
+    <input type="number" class="input input-bordered w-full max-w-xs m-2" v-model="editprice">
     </div>
     <a class="btn btn-primary m-2" @click="editService()">Confirm Changes</a>
 </form>
 </dialog>
+
+<div class="flex items-center justify-center">
+<form class="container w-1/2">
+        <input type="text" placeholder="Service Name" class="input input-bordered w-full max-w-xs m-2" v-model= "serviceName" required/>
+        <input type="number" placeholder="0.00" class="input input-bordered w-full max-w-xs m-2" v-model="price" required/>
+        <button class="btn btn-primary" @click="createService">Create</button>      
+    </form>
+</div>
 
 <div class="flex items-center justify-center">
     <div class="w-1/2">
@@ -37,7 +45,7 @@
         <thead>
             <tr>
             <th>Service Name</th>
-            <th>Price</th>
+            <th>editPrice</th>
             <th>Actions</th>
             </tr>
         </thead>
@@ -81,8 +89,8 @@ const errorMessage = ref(false);
 const serverMessage = ref('');
 
 const serviceID = ref(null);
-const serviceName = ref(null);
-const price = ref(null);
+const editServiceName = ref(null);
+const editprice = ref(null);
 
 const getServices = async () => {
 
@@ -104,8 +112,8 @@ onMounted(async () => {
 
 const openEditServiceModal = (service) => {
     serviceID.value = service.id;
-    serviceName.value = service.servicename;
-    price.value = service.price;
+    editServiceName.value = service.servicename;
+    editprice.value = service.price;
     editServiceModal.showModal();
 
 };
@@ -161,16 +169,16 @@ const editService = async () => {
             body: JSON.stringify(
                 {
                     id: serviceID.value,
-                    servicename: serviceName.value,
-                    price: price.value
+                    servicename: editServiceName.value,
+                    price: editprice.value
                 })
         });
 
         const data = await response.json();
         
         if (response.status === 200) {
-            serviceName.value = '';
-            price.value = '';
+         editServiceName.value = '';
+            editprice.value = '';
             editServiceModal.close();
             await getServices();
 
