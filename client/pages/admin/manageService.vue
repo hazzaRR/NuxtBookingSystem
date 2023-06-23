@@ -87,6 +87,7 @@ const services = ref([]);
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
+const csrf_token = ref(null);
 
 const serviceID = ref(null);
 const editServiceName = ref(null);
@@ -110,6 +111,7 @@ const getServices = async () => {
 
 onMounted(async () => {
     await getServices();
+    csrf_token.value = await getCSRFToken();
 });
 
 const openEditServiceModal = (service) => {
@@ -215,7 +217,8 @@ const createService = async () => {
         {
             method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
             },
             credentials: "include",
             body: JSON.stringify(

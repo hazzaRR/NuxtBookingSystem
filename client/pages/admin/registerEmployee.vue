@@ -28,6 +28,7 @@ definePageMeta({
     layout: "admin-layout"
 });
 
+const csrf_token = ref(null);
 const registerSucessful = ref(false);
 const registerError = ref(false);
 const errorMessage = ref('');
@@ -37,6 +38,9 @@ const surname = ref('');
 const password = ref('');
 const telephone = ref('');
 
+onMounted(async () => {
+    csrf_token.value = await getCSRFToken();
+});
 
 const register = async (event) => {
 
@@ -52,7 +56,8 @@ const register = async (event) => {
     {
         method: "POST",
         headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
         },
         credentials: "include",
         body: JSON.stringify({
