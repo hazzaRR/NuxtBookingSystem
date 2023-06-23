@@ -20,10 +20,9 @@ const authenticateAdmin = async (req, res, next) => {
 
     const {auth_token} = req.cookies;
 
-    console.log(auth_token)
+    // console.log(auth_token)
 
     if (!auth_token) {
-
         return res.status(401).json({message: "Unable to authenticate session"});
     }
 
@@ -72,15 +71,46 @@ const reauthenticateAdmin = async (req, res, next) => {
 
 };
 
+const validate_csrfToken = async (req, res, next) => {
+
+    const  csrfToken = req.get('X-CSRF-Token');
+    console.log(csrfToken);
+
+    // if no sessionID is provided return unauthorised status, if there is no crsftoken provided return forbidden status code
+    if (!csrfToken) {
+        console.log("No csrf token provided");
+        return res.status(403).json({ message: 'No csrf token provided'});
+    }
+    else {
+        // if session id and csrftoken is provided check for session id in database and retrieve csrftoken provided with it
+        // if they match perform rest of api action
+        try {
+            const {auth_token} = req.cookies;
+            // console.log(sessionID);
+            const storedCsrfToken = await pool.query('SELECT csrf_token FROM user_sessions WHERE session_id = $1', [auth_token]);
+
+            if (csrfToken === storedCsrfToken.rows[0].csrf_token) {
+                next();
+
+                // else return forbidden status saying token is invalid
+            } else {
+                console.log('Invalid CSRF token');
+                return res.status(403).json({message:'Invalid CSRF token'});
+            }
+        } catch (err) {
+            console.error(err)
+            return res.status(500).json({ message:'Error validating CSRF token'});
+        }
+    }
+};
+
 router.get('/employees', authenticateAdmin, async (req, res) => {
 
     try {
 
-        console.log("This got here")
-
         const employees = await pool.query('SELECT id, firstname, surname, telephone FROM employee');
 
-        console.log(employees.rows);
+        // console.log(employees.rows);
 
         return res.status(200).json({employees: employees.rows, message: "Employees fetched succesfully"});
         
@@ -118,7 +148,7 @@ router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (re
     }
 });
 
-router.post('/register-employee', authenticateAdmin, async (req, res) => {
+router.post('/register-employee', authenticateAdmin, validate_csrfToken, async (req, res) => {
 
 
     try {
@@ -142,7 +172,7 @@ router.post('/register-employee', authenticateAdmin, async (req, res) => {
         }
 
 
-        res.json({ message: 'Employee Successfully registered', user_type: createSession.rows[0].user_type});
+        res.json({ message: 'Employee Successfully registered'});
 
     } catch (err) {
         console.error(err.message);
@@ -167,7 +197,7 @@ router.delete('/delete-employee', authenticateAdmin, async (req, res) => {
     }
 });
 
-router.post('/add-service', authenticateAdmin, async (req, res) => {
+router.post('/add-service', authenticateAdmin, validate_csrfToken, async (req, res) => {
 
     try {
 
@@ -180,7 +210,7 @@ router.post('/add-service', authenticateAdmin, async (req, res) => {
         return res.json({message: "Service added succesfully"});
         
     } catch (error) {
-        
+        console.log(error);
         return res.status(500).json({message: "Error accessing database"});
     }
 
