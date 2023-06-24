@@ -65,8 +65,8 @@ const reauthenticateAdmin = async (req, res, next) => {
     if (isPasswordValid) {
         next();
     } else {
-        res.status(401).json('Invalid password');
         console.log("incorrect password");
+        return res.status(401).json({message:'Invalid password'});
     }
 
 };
@@ -131,7 +131,7 @@ router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (re
         let {newPassword, reEnteredNewPassword} = req.body;
 
         if (newPassword !== reEnteredNewPassword) {
-            return res.status(403).json("Password do not match");
+            return res.status(403).json({message: "Password do not match"});
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -140,7 +140,7 @@ router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (re
         const updatedAccount = await pool.query(`UPDATE admin SET password = $1 WHERE ID = $2`, [hashedPassword, accountid]);
 
         console.log("Account password successfully updated");
-        return res.json("Account password successfully updated")
+        return res.json({message: "Account password successfully updated"});
 
     } catch (err) {
         console.error(err.message);
@@ -175,7 +175,7 @@ router.post('/register-employee', authenticateAdmin, validate_csrfToken, async (
         res.json({ message: 'Employee Successfully registered'});
 
     } catch (err) {
-        console.error(err.message);
+        console.error(err);
         res.json({message:"Error creating employee"});
     }
 

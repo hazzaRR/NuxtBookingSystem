@@ -7,11 +7,8 @@
             <input type="text" placeholder="firstname" class="input input-bordered w-full max-w-xs" v-model="firstname" required/>
             <input type="text" placeholder="surname" class="input input-bordered w-full max-w-xs" v-model="surname" required/>
             <input type="text" placeholder="telephone" class="input input-bordered w-full max-w-xs" v-model="telephone" required />
-            <button class="btn" @click="register">Button</button>      
+            <button class="btn btn-primary" @click="register">Button</button>      
         </form>
-
-
-        <p>{{ email }}</p>
 
     </div>
 </template>

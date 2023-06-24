@@ -4,10 +4,14 @@
 
         <h1>Manage Bookings</h1>
 
-        <div class="container mx-auto p-4">
+        <div class="flex items-center justify-center">
 
-        <FullCalendar :options="calendarOptions" :events="events"/>
+          <div class="w-3/4">
 
+            
+            <FullCalendar :options="calendarOptions" :events="events"/>
+            
+          </div>
         </div>
 
 
@@ -41,7 +45,7 @@ const calendarOptions = ref({
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'addAppointmentBtn dayGridMonth,timeGridWeek,timeGridDay'
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
       events: [
         ],
@@ -59,14 +63,6 @@ const calendarOptions = ref({
       eventClick: function(info) {
 
         navigateTo(`/employee/manageBookings/${info.event.id}`);
-      },
-      customButtons: {
-        addAppointmentBtn: {
-          text: 'New Appointment',
-          click: function(info) {
-            navigateTo('/appointment/createAppointment');
-          }
-        }
       }
 });
 

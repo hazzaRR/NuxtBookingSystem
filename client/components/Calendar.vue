@@ -1,5 +1,5 @@
 <template>
-    <div class="container mx-auto p-4">
+    <div>
 
         <FullCalendar :options="calendarOptions" />
 
@@ -25,7 +25,7 @@ const calendarOptions = {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'addAppointmentBtn dayGridMonth,timeGridWeek,timeGridDay'
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
       eventTimeFormat: {
         hour: 'numeric',
@@ -40,14 +40,6 @@ const calendarOptions = {
       //redirects the page to show the details of the appointment you have selected
       eventClick: function(info) {
         navigateTo(`/appointment/viewAppointment?id=${info.event.id}`);
-      },
-      customButtons: {
-        addAppointmentBtn: {
-          text: 'New Appointment',
-          click: function(info) {
-            navigateTo('/appointment/createAppointment');
-          }
-        }
       }
       }
 

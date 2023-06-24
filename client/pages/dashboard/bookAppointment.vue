@@ -20,25 +20,25 @@
         <button class="btn mx-1 my-4" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
         
         <div v-if="stage === 1">
-          <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
-    </div>
+            <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
+        </div>
 
-    <div v-else-if="stage === 2">
-      <label>Date:</label>
-      <div class="mx-auto">
-        <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs"/>
+        <div v-else-if="stage === 2">
+          <label>Date:</label>
+          <div class="mx-auto">
+            <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs"/>
+          </div>
+        </div>
+        
+        <div v-else-if="stage === 3">
+          <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
+        </div>
+        
+        <div v-else>
+          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID"/>
+        </div>
+        
       </div>
-    </div>
-    
-    <div v-else-if="stage === 3">
-      <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
-    </div>
-    
-    <div v-else>
-      <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID"/>
-    </div>
-    
-  </div>
     
     <!-- <div class="border border-blue-300 shadow rounded-md p-4 max-w-sm w-full mx-auto ease-in-out duration-300">
       <div class="animate-pulse flex space-x-4">

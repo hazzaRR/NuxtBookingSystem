@@ -18,7 +18,7 @@
         </button>
         </div>
         <div class="relative mb-6">
-        <button class="btn" @click.prevent="login">Login</button>
+        <button class="btn btn-primary" @click.prevent="login">Login</button>
         </div>   
         </form>
     </div>

@@ -45,7 +45,7 @@
         <thead>
             <tr>
             <th>Service Name</th>
-            <th>editPrice</th>
+            <th>Price</th>
             <th>Actions</th>
             </tr>
         </thead>
