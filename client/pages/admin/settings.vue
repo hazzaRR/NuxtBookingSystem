@@ -49,6 +49,11 @@ const reEnteredNewPassword = ref('');
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
+const csrf_token = ref(null);
+
+onMounted(async () => {
+    csrf_token.value = await getCSRFToken();
+});
 
 
 const changePassword = async () => {
@@ -73,7 +78,8 @@ const changePassword = async () => {
         const response = await fetch(`${config.public.API_BASE_URL}/admin/change-password`, {
             method: "PUT",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
             },
             credentials: "include",
         body: JSON.stringify({

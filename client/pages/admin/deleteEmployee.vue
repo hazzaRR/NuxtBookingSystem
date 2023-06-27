@@ -68,8 +68,9 @@ const getEmployees = async () => {
 
 };
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
     getEmployees();
+    csrf_token.value = await getCSRFToken();
 });
 
 
@@ -83,7 +84,8 @@ const deleteEmployee = async (employeeId, index) => {
             {
                 method: "DELETE",
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRF-Token': csrf_token.value
                 },
                 credentials: "include",
                 body: JSON.stringify({

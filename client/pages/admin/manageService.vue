@@ -130,7 +130,8 @@ const deleteService = async (serviceID, index) => {
         {
             method: "DELETE",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
             },
             credentials: "include",
             body: JSON.stringify({id: serviceID})
@@ -167,7 +168,8 @@ const editService = async () => {
         {
             method: "PUT",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
             },
             credentials: "include",
             body: JSON.stringify(
