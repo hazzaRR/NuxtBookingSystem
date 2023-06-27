@@ -20,7 +20,7 @@
 
 const config = useRuntimeConfig();
 
-const props = defineProps(['currentEmail', 'route']);
+const props = defineProps(['currentEmail', 'route', 'csrfToken']);
 
 const email = ref();
 const password = ref('');
@@ -43,7 +43,8 @@ const UpdateEmail = async (event) => {
     const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-email`, {
         method: "PUT",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': props.csrfToken
         },
         credentials: 'include',
         body: JSON.stringify({

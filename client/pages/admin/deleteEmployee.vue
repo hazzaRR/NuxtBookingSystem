@@ -56,6 +56,7 @@ const employees = ref([]);
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
+const csrf_token = ref(null);
 
 const getEmployees = async () => {
     const data = await $fetch(`${config.public.API_BASE_URL}/admin/employees`, {

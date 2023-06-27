@@ -22,7 +22,7 @@
 <script setup>
 const config = useRuntimeConfig();
 
-const props = defineProps(['route']);
+const props = defineProps(['route', 'csrfToken']);
 
 
 const password = ref('');
@@ -42,7 +42,8 @@ const UpdatePassword = async (event) => {
     const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-password`, {
         method: "PUT",
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': props.csrfToken
         },
         credentials: 'include',
         body: JSON.stringify({

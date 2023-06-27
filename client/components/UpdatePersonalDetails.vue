@@ -23,7 +23,7 @@
 <script setup>
 
 const config = useRuntimeConfig();
-const props = defineProps(['currentFirstname', 'currentSurname', 'currentTelephone', 'route']);
+const props = defineProps(['currentFirstname', 'currentSurname', 'currentTelephone', 'route', 'csrfToken']);
 
 const firstname = ref('');
 const surname = ref('');
@@ -48,7 +48,8 @@ const updateDetails = async (event) => {
     const response = await fetch(`${config.public.API_BASE_URL}/${props.route}/update-account`, {
         method: 'PUT',
         headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': props.csrfToken
         },
         credentials: 'include',
         body: JSON.stringify(updatedAccountDetails)

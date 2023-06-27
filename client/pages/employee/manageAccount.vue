@@ -11,13 +11,13 @@
 
 
         <div v-if="setting === 'updateEmail'">
-            <ChangeEmail :currentEmail="email" route="employee"/>
+            <ChangeEmail :currentEmail="email" route="employee" :csrfToken="csrf_token"/>
         </div>
         <div v-else-if="setting === 'updatePassword'">
-            <ChangePassword  route="employee"/>
+            <ChangePassword  route="employee" :csrfToken="csrf_token"/>
         </div>
         <div v-else-if="setting === 'updatePersonalDetails'">
-            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="employee"/>
+            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="employee" :csrfToken="csrf_token"/>
         </div>
 
     </div>
@@ -39,6 +39,7 @@ const email = ref('');
 const firstname = ref('');
 const surname = ref('');
 const telephone = ref('');
+const csrf_token = ref(null);
 
 
 const getAccountDetails = async () => {
@@ -58,8 +59,9 @@ const getAccountDetails = async () => {
 
 };
 
-onMounted(() => {
-    getAccountDetails();
+onMounted(async () => {
+    await getAccountDetails();
+    csrf_token.value = await getCSRFToken();
 });
 
 

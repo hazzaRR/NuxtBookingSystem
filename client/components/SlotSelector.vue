@@ -27,6 +27,7 @@ const config = useRuntimeConfig();
 
 const availableSlots = ref(null);
 const selectedSlot = ref(null);
+const csrf_token = ref(null);
 
 const getSlot = async () => {
 
@@ -47,8 +48,9 @@ try {
 }
 };
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
     getSlot();
+    csrf_token.value = await getCSRFToken();
 })
 
 const selectSlot = (slot) => {
@@ -66,7 +68,8 @@ const BookSlot = async () => {
     {
         method: "POST",
         headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
         },
         credentials: "include",
         body: JSON.stringify({
