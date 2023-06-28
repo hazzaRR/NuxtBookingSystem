@@ -74,8 +74,8 @@ const reauthenticateEmployee = async (req, res, next) => {
     if (isPasswordValid) {
         next();
     } else {
-        res.status(401).json('Invalid password');
         console.log("incorrect password");
+        return res.status(401).json({message:'Invalid password'});
     }
 
 };

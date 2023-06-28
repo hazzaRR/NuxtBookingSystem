@@ -23,6 +23,7 @@
 const config = useRuntimeConfig();
 
 const props = defineProps(['route', 'csrfToken']);
+const emits = defineEmits(['update:successMessage', 'update:errorMessage', 'update:serverMessage']);
 
 
 const password = ref('');
@@ -57,9 +58,18 @@ const UpdatePassword = async (event) => {
 
     if ( response.status === 200) {
         console.log(data.message);
+        password.value = '';
+        newPassword.value = '';
+        reEnteredNewPassword.value = '';
+        emits('update:successMessage', true);
+        emits('update:errorMessage', false);
+        emits('update:serverMessage', data.message);
     }
     else {
         console.log(data.message);
+        emits('update:successMessage', false);
+        emits('update:errorMessage', true);
+        emits('update:serverMessage', data.message);
     }
 };
 
