@@ -351,7 +351,7 @@ const AppointmentObject = {
     "appointments": [
             {
               "ID": 1,
-              "appDate": "2023-06-14",
+              "appDate": new Date().toISOString().slice(0,10),
               "startTime": "13:00:00",
               "endTime": "13:30:00",
               "clientID": 1,
@@ -360,7 +360,7 @@ const AppointmentObject = {
             },
             {
               "ID": 2,
-              "appDate": "2023-06-14",
+              "appDate": new Date().toISOString().slice(0,10),
               "StartTime": "09:00:00",
               "EndTime": "09:30:00",
               "clientID": 2,
@@ -369,7 +369,7 @@ const AppointmentObject = {
             },
             {
               "ID": 3,
-              "appDate": "2023-06-19",
+              "appDate": new Date().toISOString().slice(0,10),
               "startTime": "14:00:00",
               "endTime": "15:00:00",
               "clientID": 1,

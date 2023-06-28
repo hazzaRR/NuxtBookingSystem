@@ -292,7 +292,7 @@ router.get('/appointment', authenticateEmployee, async(req, res) => {
 
         const appointment = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), appointment.StartTime, appointment.EndTime, client.firstname, client.surname, client.telephone, service.id as serviceID, service.price FROM Appointment INNER JOIN client ON appointment.clientID = client.id INNER JOIN service ON appointment.serviceID = service.id INNER JOIN employee ON appointment.employeeID = employee.id WHERE appointment.id = $1", [id]);
 
-        // console.log(appointment.rows[0])
+        console.log(appointment.rows[0])
 
         return res.json({message: "Success fetching appointment", appointment:appointment.rows[0]})
         
