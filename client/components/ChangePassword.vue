@@ -56,7 +56,7 @@ const UpdatePassword = async (event) => {
     const data = await response.json();
 
     if ( response.status === 200) {
-        console.log(data.message)
+        console.log(data.message);
     }
     else {
         console.log(data.message);

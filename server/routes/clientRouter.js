@@ -68,6 +68,41 @@ const reauthenticateClient = async (req, res, next) => {
 
 };
 
+
+const validate_csrfToken = async (req, res, next) => {
+
+    const  csrfToken = req.get('X-CSRF-Token');
+    console.log(csrfToken);
+
+    // if no sessionID is provided return unauthorised status, if there is no crsftoken provided return forbidden status code
+    if (!csrfToken) {
+        console.log("No csrf token provided");
+        return res.status(403).json({ message: 'No csrf token provided'});
+    }
+    else {
+        // if session id and csrftoken is provided check for session id in database and retrieve csrftoken provided with it
+        // if they match perform rest of api action
+        try {
+            const {auth_token} = req.cookies;
+            // console.log(sessionID);
+            const storedCsrfToken = await pool.query('SELECT csrf_token FROM user_sessions WHERE session_id = $1', [auth_token]);
+
+            if (csrfToken === storedCsrfToken.rows[0].csrf_token) {
+                console.log("success!")
+                next();
+
+                // else return forbidden status saying token is invalid
+            } else {
+                console.log('Invalid CSRF token');
+                return res.status(403).json({message:'Invalid CSRF token'});
+            }
+        } catch (err) {
+            console.error(err)
+            return res.status(500).json({ message:'Error validating CSRF token'});
+        }
+    }
+};
+
 router.get('/account-details', authenticateClient, async(req, res) => {
     const user = req.user;
 
@@ -87,7 +122,7 @@ router.get('/account-details', authenticateClient, async(req, res) => {
 
 });
 
-router.delete('/delete-account', authenticateClient, reauthenticateClient, async (req, res) => {
+router.delete('/delete-account', authenticateClient, reauthenticateClient, validate_csrfToken, async (req, res) => {
 
     const user = req.user;
 
@@ -103,7 +138,7 @@ router.delete('/delete-account', authenticateClient, reauthenticateClient, async
     }
 })
 
-router.put('/update-account', authenticateClient, authenticateClient, async (req, res) => {
+router.put('/update-account', authenticateClient, authenticateClient, validate_csrfToken, async (req, res) => {
 
     const user = req.user;
 
@@ -121,7 +156,7 @@ router.put('/update-account', authenticateClient, authenticateClient, async (req
     }
 });
 
-router.put('/update-password', authenticateClient, reauthenticateClient, async (req, res) => {
+router.put('/update-password', authenticateClient, reauthenticateClient, validate_csrfToken, async (req, res) => {
 
 
     try {
@@ -148,7 +183,7 @@ router.put('/update-password', authenticateClient, reauthenticateClient, async (
     }
 });
 
-router.put('/update-email', authenticateClient, reauthenticateClient, async (req, res) => {
+router.put('/update-email', authenticateClient, reauthenticateClient, validate_csrfToken, async (req, res) => {
 
 
     try {
@@ -219,7 +254,7 @@ router.delete('/appointment', authenticateClient, async (req, res) => {
 
 });
 
-router.post("/book-slot", authenticateClient, async (req, res) => {
+router.post("/book-slot", authenticateClient, validate_csrfToken, async (req, res) => {
 
 
     try {

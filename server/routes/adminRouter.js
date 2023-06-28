@@ -90,6 +90,7 @@ const validate_csrfToken = async (req, res, next) => {
             const storedCsrfToken = await pool.query('SELECT csrf_token FROM user_sessions WHERE session_id = $1', [auth_token]);
 
             if (csrfToken === storedCsrfToken.rows[0].csrf_token) {
+                console.log("success!")
                 next();
 
                 // else return forbidden status saying token is invalid
@@ -122,7 +123,7 @@ router.get('/employees', authenticateAdmin, async (req, res) => {
 
 });
 
-router.put('/change-password', authenticateAdmin, reauthenticateAdmin, async (req, res) => {
+router.put('/change-password', authenticateAdmin, reauthenticateAdmin, validate_csrfToken, async (req, res) => {
 
     try {
 
@@ -181,7 +182,7 @@ router.post('/register-employee', authenticateAdmin, validate_csrfToken, async (
 
 });
 
-router.delete('/delete-employee', authenticateAdmin, async (req, res) => {
+router.delete('/delete-employee', authenticateAdmin, validate_csrfToken, async (req, res) => {
 
     const {employeeId} = req.body;
 
@@ -217,7 +218,7 @@ router.post('/add-service', authenticateAdmin, validate_csrfToken, async (req, r
 
 });
 
-router.delete('/delete-service', authenticateAdmin, async (req, res) => {
+router.delete('/delete-service', authenticateAdmin, validate_csrfToken, async (req, res) => {
 
     try {
 
@@ -238,7 +239,7 @@ router.delete('/delete-service', authenticateAdmin, async (req, res) => {
 
 });
 
-router.put('/update-service', authenticateAdmin, async (req, res) => {
+router.put('/update-service', authenticateAdmin, validate_csrfToken, async (req, res) => {
 
     try {
 
