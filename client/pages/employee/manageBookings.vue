@@ -4,6 +4,18 @@
 
         <h1>Manage Bookings</h1>
 
+      <p>{{isMobile}}</p>
+
+        <div v-if="$device.isDesktop">
+      Desktop
+    </div>
+    <div v-else-if="$device.isTablet">
+      Tablet
+    </div>
+    <div v-else>
+      Mobile
+    </div>
+
         <dialog id="editBookingDetails" class="modal modal-bottom sm:modal-middle">
         <form method="dialog" class="modal-box">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -11,11 +23,13 @@
         </form>
         </dialog>
 
-        <div class="flex items-center justify-center">
+        <div v-if="isMobile" class="w-full h-full">
+          <FullCalendar :options="mobileCalendarOptions" :events="events"/>
+        </div>
+        <div v-else class="flex items-center justify-center">
 
           <div class="w-3/4">
             <FullCalendar :options="calendarOptions" :events="events"/>
-            
           </div>
         </div>
 
@@ -38,11 +52,36 @@ definePageMeta({
     layout: "employee-layout"
 });
 
+const mobileCalendarOptions = ref({
+  plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
+    initialView: 'timeGridDay',
+      firstDay: 1,
+      slotMinTime: '07:00',
+      slotMaxTime: '21:00',
+      slotDuration: '00:15',
+      nowIndicator: true,
+      headerToolbar: {
+        left: 'prev,next today',
+        right: 'title',
+      },
+      events: [
+        ],
+      eventTimeFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        meridiem: 'short'
+      },
+      //redirects the page to show the details of the appointment you have selected
+      eventClick: function(info) {
+        selectedID.value = info.event.id;
+        editBookingDetails.showModal();
+      }
+});
+
 
 const calendarOptions = ref({
     plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
     initialView: 'timeGridWeek',
-    selectable: true,
       firstDay: 1,
       slotMinTime: '07:00',
       slotMaxTime: '21:00',
@@ -60,11 +99,6 @@ const calendarOptions = ref({
         minute: '2-digit',
         meridiem: 'short'
       },
-      dateClick: function(info) {
-        date = info.dateStr;
-        console.log(date);
-        calendar.changeView('timeGridDay', date);
-      },
       //redirects the page to show the details of the appointment you have selected
       eventClick: function(info) {
 
@@ -80,6 +114,8 @@ const appointments = ref(null);
 const events = ref([]);
 const selectedID = ref(null);
 const csrf_token = ref(null);
+
+const { isMobile } = useDevice();
 
 const getAppointments = async () => {
 
@@ -104,7 +140,14 @@ const getAppointments = async () => {
         end: `${data.appointments[i].appdate}T${data.appointments[i].endtime}`
         };
 
-        calendarOptions.value.events.push(newEvent);
+        console.log(isMobile);
+
+        if (isMobile) {
+          mobileCalendarOptions.value.events.push(newEvent);
+        }
+        else {
+          calendarOptions.value.events.push(newEvent);
+        }
 
     };
 

@@ -12,7 +12,7 @@
                 <label class="label">
                 <span class="label-text">Customer Name</span>
                 </label>
-                <p class="input input-bordered w-full max-w-xs flex items-center input-disabled"> {{ appointmentDetails.firstname + " " + appointmentDetails.surname }}</p>
+                <p class="input input-bordered w-full max-w-xs flex items-center input-disabled input-sm lg:input-lg"> {{ appointmentDetails.firstname + " " + appointmentDetails.surname }}</p>
                 </div>
                 <!-- <div class="relative mb-6">
                     <p class="input input-bordered w-full max-w-xs">{{ appointmentDetails.email }}</p>
@@ -21,13 +21,13 @@
                 <label class="label">
                 <span class="label-text">Phone Number</span>
                 </label>
-                <p class="input input-bordered w-full max-w-xs flex items-center input-disabled"> {{ appointmentDetails.telephone }}</p>
+                <p class="input input-bordered w-full max-w-xs flex items-center input-disabled input-sm lg:input-lg"> {{ appointmentDetails.telephone }}</p>
                 </div>
                 <div class="form-control w-full max-w-xs">
                 <label class="label">
                 <span class="label-text">Service</span>
                 </label>
-                    <select class="input input-bordered w-full max-w-xs" id="service" v-model="selectedService">
+                    <select class="input input-bordered w-full max-w-xs select-sm lg:select-lg" id="service" v-model="selectedService">
                     <option  v-for="(service, index) in services" :value="service.id" :key="index">{{ service.servicename }}</option>
                     </select>
                 </div>
@@ -36,16 +36,16 @@
                 <label class="label">
                 <span class="label-text">Date</span>
                 </label>
-                    <input type="date" class="input input-bordered w-full max-w-xs" v-model="appDate"/>
+                    <input type="date" class="input input-bordered w-full max-w-xs input-sm lg:input-lg" v-model="appDate"/>
                 </div>
                 <div class="form-control w-full max-w-xs">
                 <label class="label">
                 <span class="label-text">Time Slot</span>
                 </label>
                 <div class="flex space-x-2">
-                    <input type="time" class="input input-bordered w-1/2 max-w-xs" v-model="startTime"/>
+                    <input type="time" class="input input-bordered w-1/2 max-w-xs input-sm lg:input-lg" v-model="startTime"/>
                     <span class="flex items-center">-</span>
-                    <input type="time" class="input input-bordered w-1/2 max-w-xs" v-model="endTime"/>
+                    <input type="time" class="input input-bordered w-1/2 max-w-xs input-sm lg:input-lg" v-model="endTime"/>
                 </div>
                 </div>
                 <div class="relative mb-6">
