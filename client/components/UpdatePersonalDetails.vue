@@ -24,6 +24,7 @@
 
 const config = useRuntimeConfig();
 const props = defineProps(['currentFirstname', 'currentSurname', 'currentTelephone', 'route', 'csrfToken']);
+const emits = defineEmits(['update:successMessage', 'update:errorMessage', 'update:serverMessage']);
 
 const firstname = ref('');
 const surname = ref('');
@@ -59,6 +60,14 @@ const updateDetails = async (event) => {
 
     if (response.status === 200) {
         console.log(data.message)
+        emits('update:successMessage', true);
+        emits('update:errorMessage', false);
+        emits('update:serverMessage', data.message);
+    }
+    else {
+        emits('update:successMessage', false);
+        emits('update:errorMessage', true);
+        emits('update:serverMessage', data.message);
     }
 };
 

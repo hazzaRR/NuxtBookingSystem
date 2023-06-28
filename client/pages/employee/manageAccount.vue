@@ -20,13 +20,13 @@
 
 
         <div v-if="setting === 'updateEmail'">
-            <ChangeEmail :currentEmail="email" route="employee" :csrfToken="csrf_token"/>
+            <ChangeEmail :currentEmail="email" route="employee" :csrfToken="csrf_token"   @update:successMessage="successMessage = $event" @update:errorMessage="errorMessage = $event" @update:serverMessage="serverMessage = $event"/>
         </div>
         <div v-else-if="setting === 'updatePassword'">
             <ChangePassword  route="employee" :csrfToken="csrf_token"  @update:successMessage="successMessage = $event" @update:errorMessage="errorMessage = $event" @update:serverMessage="serverMessage = $event"/>
         </div>
         <div v-else-if="setting === 'updatePersonalDetails'">
-            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="employee" :csrfToken="csrf_token"/>
+            <UpdatePersonalDetails :currentFirstname="firstname" :currentSurname="surname" :currentTelephone="telephone" route="employee" :csrfToken="csrf_token"   @update:successMessage="successMessage = $event" @update:errorMessage="errorMessage = $event" @update:serverMessage="serverMessage = $event"/>
         </div>
 
     </div>
