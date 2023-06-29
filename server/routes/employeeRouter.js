@@ -270,9 +270,7 @@ router.get('/availability', authenticateEmployee, async(req, res) => {
 
         const { date } = req.query;
 
-        console.log(date)
-
-        const availability = await pool.query("SELECT employee_availability.StartTime, employee_availability.EndTime, employee_availability.available FROM employee_availability WHERE employee_availability.availabilitydate = $1 and employee_availability.employeeId = $2", [date,user.id]);
+        const availability = await pool.query("SELECT employee_availability.DayOfWeek, employee_availability.StartTime, employee_availability.EndTime, employee_availability.available FROM employee_availability WHERE employee_availability.employeeId = $1", [user.id]);
 
         return res.json({message: "Success fetching current availability", availability:availability.rows})
         

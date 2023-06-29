@@ -172,12 +172,19 @@ router.post('/register-employee', authenticateAdmin, validate_csrfToken, async (
             return res.status(409).json({ message: 'Register Invalid' });
         }
 
+        const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-        res.json({ message: 'Employee Successfully registered'});
+        weekdays.forEach(async (weekday) => {
+
+            const availability = await pool.query("INSERT INTO employee_availability (DayOfWeek, employeeID, available) VALUES($1, $2, $3)", [weekday, account.rows[0].id, false]);
+        });
+
+
+        return res.json({ message: 'Employee Successfully registered'});
 
     } catch (err) {
         console.error(err);
-        res.json({message:"Error creating employee"});
+        return res.json({message:"Error creating employee"});
     }
 
 });
@@ -263,6 +270,7 @@ router.put('/update-service', authenticateAdmin, validate_csrfToken, async (req,
 
 
 });
+
 
 
     

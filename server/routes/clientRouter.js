@@ -234,13 +234,7 @@ router.delete('/appointment', authenticateClient, async (req, res) => {
 
         const appointment = await pool.query("DELETE FROM appointment WHERE id = $1 RETURNING CAST(appDate AS TEXT), starttime, endtime, employeeid", [id]);
 
-        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE availabilitydate = $2 AND starttime = $3 AND endtime = $4 AND employeeid = $5 RETURNING *", [true, appointment.rows[0].appdate, appointment.rows[0].starttime, appointment.rows[0].endtime, appointment.rows[0].employeeid]);
-
-
-        if (updateAvailabilty.rowCount === 0) {
-            const createAvailabilty = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5)", [appointment.rows[0].employeeid, appointment.rows[0].appdate, appointment.rows[0].starttime, appointment.rows[0].endtime, true]);
-        }
-
+        
         res.json({message: "Appointment Cancelled"});
 
     } catch (error) {

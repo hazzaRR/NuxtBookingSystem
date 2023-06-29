@@ -1,20 +1,17 @@
 <template>
     <div>
 
-      <p>{{ bookingStatus }}</p>
-
-        <h1>Book an Appointment</h1>
-  <div class="w-10/12 border rounded-md mx-auto border-blue-100">
+    <div class="w-10/12 border rounded-md mx-auto border-blue-100">
         
         
-        <button class="btn mx-1 my-4" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-</svg>
-</button>
-        <button class="btn mx-1 my-4" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-</svg>
-</button>
+    <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+    </svg>
+    </button>
+    <button class="btn mx-1 my-4 btn-accent" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+    </svg>
+    </button>
         
         <div v-if="stage === 1">
             <ServiceForm @update:selectedServiceID="selectedServiceID = $event" @update:serviceDuration="duration = $event" :selectedServiceID='selectedServiceID'/>
@@ -104,7 +101,6 @@ const refreshPage = () => {
   serverMessage.value = null;
 
 };
-
 
 
 const nextStage = () => {

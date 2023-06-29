@@ -185,6 +185,14 @@ const createEmployees = async (employeeObject) => {
             const hashedPassword = await bcrypt.hash(account.password, 10);
     
             const createEmployee = await pool.query("INSERT INTO employee (firstname, surname, email, password, telephone) VALUES($1, $2, $3, $4, $5) RETURNING *", [account.firstname, account.surname, hashEmail, hashedPassword, account.telephone]);
+
+
+            const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+            weekdays.forEach(async (weekday) => {
+    
+                const availability = await pool.query("INSERT INTO employee_availability (DayOfWeek, employeeID, available) VALUES($1, $2, $3)", [weekday, createEmployee.rows[0].id, false]);
+            });
           
         };
 
@@ -217,29 +225,6 @@ const createServices = async () => {
         console.log(error.message)
         
     }
-};
-
-const createAvailability = async (AppointmentObject) => {
-
-    try {
-
-        for (let index in AppointmentObject.availability) {
-            let availability = AppointmentObject.availability[index];
-
-            console.log(availability);
-    
-            const createAvailability = await pool.query("INSERT INTO employee_availability (employeeid, DayOfWeek, startTime, endTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [availability.EmployeeID, availability.DayOfWeek, availability.StartTime, availability.EndTime, availability.available]);
-          
-        };
-
-          console.log("Availability created")
-
-          return;
-        
-    } catch (error) {
-        console.error(error);
-    }
-
 };
 
 const createAppointments = async (AppointmentObject) => {
@@ -329,109 +314,7 @@ const employeeObject = {
 ]
 }
 
-const AppointmentObject = {
-    // "availability": [
-    //         {
-    //           "EmployeeID": 1,
-    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
-    //           "StartTime": "09:00:00",
-    //           "EndTime": "09:30:00",
-    //           "available": true
-    //         },
-    //         {
-    //           "EmployeeID": 1,
-    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
-    //           "StartTime": "13:00:00",
-    //           "EndTime": "13:30:00",
-    //           "available": true
-    //         },
-    //         {
-    //           "EmployeeID": 2,
-    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
-    //           "StartTime": "08:30:00",
-    //           "EndTime": "11:30:00",
-    //           "available": false
-    //         },
-    //         {
-    //           "EmployeeID": 3,
-    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
-    //           "StartTime": "14:00:00",
-    //           "EndTime": "16:30:00",
-    //           "available": true
-    //         }
-    // ],
-    "availability": [
-      {
-        "EmployeeID": 1,
-        "DayOfWeek": "Monday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 1,
-        "DayOfWeek": "Tuesday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 1,
-        "DayOfWeek": "Wednesday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 1,
-        "DayOfWeek": "Thursday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 1,
-        "DayOfWeek": "Friday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 2,
-        "DayOfWeek": "Monday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 2,
-        "DayOfWeek": "Tuesday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 2,
-        "DayOfWeek": "Wednesday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 2,
-        "DayOfWeek": "Thursday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      },
-      {
-        "EmployeeID": 2,
-        "DayOfWeek": "Friday",
-        "StartTime": "09:00:00",
-        "EndTime": "17:00:00",
-        "available": true
-      }
-    ],    
+const AppointmentObject = {   
     "appointments": [
             {
               "ID": 1,
@@ -470,7 +353,6 @@ const main = async () => {
       await createEmployees(employeeObject);
       await createClient(ClientObject);
       await createServices();
-      await createAvailability(AppointmentObject);
       await createAppointments(AppointmentObject);
       process.exit(0);
     } catch (error) {

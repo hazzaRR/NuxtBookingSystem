@@ -50,11 +50,6 @@ onMounted(async () => {
 
 const register = async () => {
 
-    console.log(email.value);
-    console.log(firstname.value);
-    console.log(surname.value);
-    console.log(password.value);
-
     try {
 
         

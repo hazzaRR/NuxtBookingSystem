@@ -1,6 +1,6 @@
 <template>
     <div>
-        <NavBar :links="links"  :logged-in="true"/>
+        <NavBar :links="links" :logged-in="true"/>
         <slot />
     </div>
 </template>
