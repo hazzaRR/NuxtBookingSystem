@@ -21,47 +21,59 @@ const createTables = async () => {
         
         await pool.query(`
         CREATE TABLE admin (
-            ID SERIAL PRIMARY KEY,
-            username VARCHAR(40) UNIQUE,
-            password VARCHAR(100)
-        );
-        
-        CREATE TABLE employee (
-            ID SERIAL PRIMARY KEY,
-            firstname VARCHAR(100),
-            surname VARCHAR(100),
-            email VARCHAR(100) UNIQUE,
-            password VARCHAR(100),
-            telephone VARCHAR(20)
-        );
-        
-        CREATE TABLE client (
-            ID SERIAL PRIMARY KEY,
-            firstname VARCHAR(100),
-            surname VARCHAR(100),
-            email VARCHAR(100) NOT NULL UNIQUE,
-            password VARCHAR(100),
-            telephone VARCHAR(20)
-        );
-        
-        CREATE TABLE service (
-            ID SERIAL PRIMARY KEY,
-            serviceName VARCHAR(40),
-            PRICE NUMERIC(6, 2)
-        );
-        
-        CREATE TABLE employee_availability (
-            ID SERIAL PRIMARY KEY,
-            EmployeeID INTEGER,
-            AvailabilityDate DATE,
-            StartTime TIME,
-            EndTime TIME,
-            available BOOLEAN NOT NULL,
-            FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
-            CONSTRAINT unique_availability UNIQUE (EmployeeID, AvailabilityDate, StartTime, EndTime)
-        );
-        
-        CREATE TABLE appointment (
+          ID SERIAL PRIMARY KEY,
+          username VARCHAR(40) UNIQUE,
+          password VARCHAR(100)
+      );
+      
+      CREATE TABLE employee (
+          ID SERIAL PRIMARY KEY,
+          firstname VARCHAR(100),
+          surname VARCHAR(100),
+          email VARCHAR(100) UNIQUE,
+          password VARCHAR(100),
+          telephone VARCHAR(20)
+      );
+      
+      CREATE TABLE client (
+          ID SERIAL PRIMARY KEY,
+          firstname VARCHAR(100),
+          surname VARCHAR(100),
+          email VARCHAR(100) NOT NULL UNIQUE,
+          password VARCHAR(100),
+          telephone VARCHAR(20)
+      );
+      
+      CREATE TABLE service (
+          ID SERIAL PRIMARY KEY,
+          serviceName VARCHAR(40),
+          Price NUMERIC(6, 2),
+          duration_minutes INTEGER
+      );
+      
+      CREATE DOMAIN day_of_week_domain AS VARCHAR(20)
+      CHECK (VALUE IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'));
+      
+      CREATE TABLE employee_availability (
+          ID SERIAL PRIMARY KEY,
+          EmployeeID INTEGER,
+          DayOfWeek day_of_week_domain,
+          StartTime TIME,
+          EndTime TIME,
+          available BOOLEAN NOT NULL,
+          FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
+          CONSTRAINT unique_availability UNIQUE (EmployeeID, DayOfWeek)
+      );
+      
+      
+      CREATE TABLE employee_blocked_days (
+          ID SERIAL PRIMARY KEY,
+          employeeID INTEGER NOT NULL,
+          blockedDate DATE,
+          FOREIGN KEY (employeeID) REFERENCES employee(ID)
+      );
+      
+      CREATE TABLE appointment (
           ID SERIAL PRIMARY KEY,
           appDate DATE,
           startTime TIME,
@@ -74,19 +86,19 @@ const createTables = async () => {
           FOREIGN KEY (serviceID) REFERENCES service(ID),
           CONSTRAINT unique_appointment UNIQUE (EmployeeID, appDate, StartTime, EndTime)
       );
-        
-        
-        CREATE DOMAIN user_type_domain AS VARCHAR(20)
-        DEFAULT 'client'
-        CHECK (VALUE IN ('admin', 'client', 'employee'));
-        
-        CREATE TABLE user_sessions (
-          session_id UUID PRIMARY KEY,
-          expiry_time TIMESTAMPTZ NOT NULL,
-          user_id INTEGER NOT NULL,
-          user_type user_type_domain NOT NULL,
-          csrf_token UUID NOT NULL
-        );
+      
+      
+      CREATE DOMAIN user_type_domain AS VARCHAR(20)
+      DEFAULT 'client'
+      CHECK (VALUE IN ('admin', 'client', 'employee'));
+      
+      CREATE TABLE user_sessions (
+        session_id UUID PRIMARY KEY,
+        expiry_time TIMESTAMPTZ NOT NULL,
+        user_id INTEGER NOT NULL,
+        user_type user_type_domain NOT NULL,
+        csrf_token UUID NOT NULL
+      );
         
         `)
 
@@ -190,12 +202,12 @@ const createServices = async () => {
 
     try {
 
-        let addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Basic Haircut', 25.00)");
-        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Mens Haircut', 30.00)");
-        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Womens Haircut', 35.00)");
-        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Childrens Haircut', 20.00)");
-        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Senior Haircut', 22.50)");
-        addServices = await pool.query("INSERT INTO service (serviceName, Price) VALUES ('Beard Trim', 15.00)");
+        let addServices = await pool.query("INSERT INTO service (serviceName, Price, duration_minutes) VALUES ('Basic Haircut', 25.00, 30)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price, duration_minutes) VALUES ('Mens Haircut', 30.00, 45)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price, duration_minutes) VALUES ('Womens Haircut', 35.00, 60)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price, duration_minutes) VALUES ('Childrens Haircut', 20.00, 30)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price, duration_minutes) VALUES ('Senior Haircut', 22.50, 30)");
+        addServices = await pool.query("INSERT INTO service (serviceName, Price,duration_minutes) VALUES ('Beard Trim', 15.00, 15)");
 
 
         console.log("Services created successfully");
@@ -216,7 +228,7 @@ const createAvailability = async (AppointmentObject) => {
 
             console.log(availability);
     
-            const createAvailability = await pool.query("INSERT INTO employee_availability (employeeid, availabilityDate, startTime, endTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [availability.EmployeeID, availability.AvailabilityDate, availability.StartTime, availability.EndTime, availability.available]);
+            const createAvailability = await pool.query("INSERT INTO employee_availability (employeeid, DayOfWeek, startTime, endTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [availability.EmployeeID, availability.DayOfWeek, availability.StartTime, availability.EndTime, availability.available]);
           
         };
 
@@ -318,36 +330,108 @@ const employeeObject = {
 }
 
 const AppointmentObject = {
+    // "availability": [
+    //         {
+    //           "EmployeeID": 1,
+    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
+    //           "StartTime": "09:00:00",
+    //           "EndTime": "09:30:00",
+    //           "available": true
+    //         },
+    //         {
+    //           "EmployeeID": 1,
+    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
+    //           "StartTime": "13:00:00",
+    //           "EndTime": "13:30:00",
+    //           "available": true
+    //         },
+    //         {
+    //           "EmployeeID": 2,
+    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
+    //           "StartTime": "08:30:00",
+    //           "EndTime": "11:30:00",
+    //           "available": false
+    //         },
+    //         {
+    //           "EmployeeID": 3,
+    //           "AvailabilityDate": new Date().toISOString().slice(0,10),
+    //           "StartTime": "14:00:00",
+    //           "EndTime": "16:30:00",
+    //           "available": true
+    //         }
+    // ],
     "availability": [
-            {
-              "EmployeeID": 1,
-              "AvailabilityDate": new Date().toISOString().slice(0,10),
-              "StartTime": "09:00:00",
-              "EndTime": "09:30:00",
-              "available": true
-            },
-            {
-              "EmployeeID": 1,
-              "AvailabilityDate": new Date().toISOString().slice(0,10),
-              "StartTime": "13:00:00",
-              "EndTime": "13:30:00",
-              "available": true
-            },
-            {
-              "EmployeeID": 2,
-              "AvailabilityDate": new Date().toISOString().slice(0,10),
-              "StartTime": "08:30:00",
-              "EndTime": "11:30:00",
-              "available": false
-            },
-            {
-              "EmployeeID": 3,
-              "AvailabilityDate": new Date().toISOString().slice(0,10),
-              "StartTime": "14:00:00",
-              "EndTime": "16:30:00",
-              "available": true
-            }
-    ],
+      {
+        "EmployeeID": 1,
+        "DayOfWeek": "Monday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 1,
+        "DayOfWeek": "Tuesday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 1,
+        "DayOfWeek": "Wednesday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 1,
+        "DayOfWeek": "Thursday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 1,
+        "DayOfWeek": "Friday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 2,
+        "DayOfWeek": "Monday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 2,
+        "DayOfWeek": "Tuesday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 2,
+        "DayOfWeek": "Wednesday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 2,
+        "DayOfWeek": "Thursday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      },
+      {
+        "EmployeeID": 2,
+        "DayOfWeek": "Friday",
+        "StartTime": "09:00:00",
+        "EndTime": "17:00:00",
+        "available": true
+      }
+    ],    
     "appointments": [
             {
               "ID": 1,

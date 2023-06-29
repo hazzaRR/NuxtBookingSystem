@@ -77,5 +77,5 @@ CREATE TABLE user_sessions (
   expiry_time TIMESTAMPTZ NOT NULL,
   user_id INTEGER NOT NULL,
   user_type user_type_domain NOT NULL,
-  csrf_token UUID NOT NULL,
+  csrf_token UUID NOT NULL
 );

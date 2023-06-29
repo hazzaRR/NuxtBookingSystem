@@ -305,19 +305,101 @@ app.get("/available-employees", async (req, res) => {
     }
 });
 
+// app.get("/available-slots", async (req, res) => {
+
+
+//     try {
+
+//         const {date, id} = req.query;
+
+//         const getAvailability = await pool.query("SELECT employee_availability.starttime, employee_availability.endtime FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.employeeid = $2 AND employee_availability.available = $3", [date, id, true]);
+
+
+//         return res.json({message:"Slots fetched successfully", availability: getAvailability.rows})
+        
+//     } catch (error) {
+//         return res.status(500).json({message:"Error accessing database"});
+//     }
+// });
+
 app.get("/available-slots", async (req, res) => {
 
 
     try {
 
+        const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
         const {date, id} = req.query;
 
-        const getAvailability = await pool.query("SELECT employee_availability.starttime, employee_availability.endtime FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.employeeid = $2 AND employee_availability.available = $3", [date, id, true]);
+        const dateToFind = new Date(date);
 
+        const checkIfBlocked = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeID = $1 AND blockedDate = $2", [id, dateToFind]);
 
-        return res.json({message:"Slots fetched successfully", availability: getAvailability.rows})
+        // console.log(checkIfBlocked);
+
+        if (checkIfBlocked.rowCount > 0) {
+            return res.status(204).json({message: "No availability for that day", availability: []});
+        }
+
+        const getAvailability = await pool.query('SELECT StartTime, EndTime, available FROM employee_availability WHERE EmployeeID = $1 AND DayOfWeek = $2', [id, weekday[dateToFind.getDay()]]);
+
+        const availabilityRows = getAvailability.rows;
+
+        console.log(availabilityRows);
+
+        if (!getAvailability.rows[0].available) {
+            return res.status(204).json({message: "No availability for that day", availability: []});
+        }
+
+        const appointmentQuery = await pool.query('SELECT StartTime, EndTime FROM appointment WHERE employeeID = $1 AND appDate = $2', [id, dateToFind]);
+
+        const appointmentsRows = appointmentQuery.rows;
+
+        // Generate the available time slots with 15-minute intervals
+        const availableTimeSlots = [];
+        for (const { starttime, endtime } of availabilityRows) {
+            const slotStartTime = new Date(`${date} ${starttime}`);
+            const slotEndTime = new Date(`${date} ${endtime}`);
+
+            // Generate slots with 15-minute intervals
+            let currentSlotTime = new Date(slotStartTime);
+            while (currentSlotTime < slotEndTime) {
+            const slotEndTime = new Date(currentSlotTime);
+            slotEndTime.setMinutes(currentSlotTime.getMinutes() + 15);
+
+            // Check if the slot overlaps with any booked appointments
+            let slotOverlaps = false;
+            for (const { starttime, endtime } of appointmentsRows) {
+                const appointmentStartTime = new Date(`${date} ${starttime}`);
+                const appointmentEndTime = new Date(`${date} ${endtime}`);
+
+                if (
+                (currentSlotTime >= appointmentStartTime && currentSlotTime < appointmentEndTime) ||
+                (slotEndTime > appointmentStartTime && slotEndTime <= appointmentEndTime) ||
+                (currentSlotTime <= appointmentStartTime && slotEndTime >= appointmentEndTime)
+                ) {
+                slotOverlaps = true;
+                break;
+                }
+            }
+
+            // Add the slot to the availableTimeSlots array if it doesn't overlap with any booked appointments
+            if (!slotOverlaps) {
+
+            availableTimeSlots.push({
+                startTime: new Date(currentSlotTime),
+                endTime: new Date(slotEndTime),
+                });
+            }
+
+            currentSlotTime.setMinutes(currentSlotTime.getMinutes() + 15);
+            }
+        }
+
+        return res.json({message:"Slots fetched successfully", availability: availableTimeSlots});
         
     } catch (error) {
+        console.log(error);
         return res.status(500).json({message:"Error accessing database"});
     }
 });
