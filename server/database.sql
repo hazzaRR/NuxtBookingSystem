@@ -1,7 +1,5 @@
 CREATE DATABASE nuxt_booking;
 
---\c into beauty_room
-
 CREATE TABLE admin (
     ID SERIAL PRIMARY KEY,
     username VARCHAR(40) UNIQUE,
@@ -29,18 +27,30 @@ CREATE TABLE client (
 CREATE TABLE service (
     ID SERIAL PRIMARY KEY,
     serviceName VARCHAR(40),
-    Price NUMERIC(6, 2)
+    Price NUMERIC(6, 2),
+    duration_minutes INTEGER
 );
+
+CREATE DOMAIN day_of_week_domain AS VARCHAR(20)
+CHECK (VALUE IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'));
 
 CREATE TABLE employee_availability (
     ID SERIAL PRIMARY KEY,
     EmployeeID INTEGER,
-    AvailabilityDate DATE,
+    DayOfWeek day_of_week_domain,
     StartTime TIME,
     EndTime TIME,
     available BOOLEAN NOT NULL,
     FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
-    CONSTRAINT unique_availability UNIQUE (EmployeeID, AvailabilityDate, StartTime, EndTime)
+    CONSTRAINT unique_availability UNIQUE (EmployeeID, DayOfWeek)
+);
+
+
+CREATE TABLE employee_blocked_days (
+    ID SERIAL PRIMARY KEY,
+    employeeID INTEGER NOT NULL,
+    blockedDate DATE,
+    FOREIGN KEY (employeeID) REFERENCES employee(ID)
 );
 
 CREATE TABLE appointment (

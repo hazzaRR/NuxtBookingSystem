@@ -1,102 +1,71 @@
-CREATE DATABASE beauty_room;
+CREATE DATABASE nuxt_booking;
 
 --\c into beauty_room
 
-CREATE TABLE admins (
+CREATE TABLE admin (
     ID SERIAL PRIMARY KEY,
     username VARCHAR(40) UNIQUE,
     password VARCHAR(100)
 );
 
-CREATE TABLE admins (
+CREATE TABLE employee (
     ID SERIAL PRIMARY KEY,
-    Username VARCHAR(100) UNIQUE,
-    Email VARCHAR(100) UNIQUE,
-    Password VARCHAR(100),
-    incorrect_attempts INTEGER NOT NULL DEFAULT 0,
-    locked BOOLEAN NOT NULL DEFAULT false,
-    locked_until TIMESTAMP
+    firstname VARCHAR(100),
+    surname VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    password VARCHAR(100),
+    telephone VARCHAR(20)
 );
 
-CREATE TABLE clients (
+CREATE TABLE client (
     ID SERIAL PRIMARY KEY,
-    ClientName VARCHAR(40),
-    Email VARCHAR(40) NOT NULL UNIQUE,
-    Telephone VARCHAR(20)
+    firstname VARCHAR(100),
+    surname VARCHAR(100),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100),
+    telephone VARCHAR(20)
 );
 
-CREATE TABLE treatment (
+CREATE TABLE service (
     ID SERIAL PRIMARY KEY,
-    TreatmentName VARCHAR(40),
-    TreatmentType VARCHAR(40),
-    PRICE NUMERIC(6, 2)
+    serviceName VARCHAR(40),
+    Price NUMERIC(6, 2)
+);
+
+CREATE TABLE employee_availability (
+    ID SERIAL PRIMARY KEY,
+    EmployeeID INTEGER,
+    AvailabilityDate DATE,
+    StartTime TIME,
+    EndTime TIME,
+    available BOOLEAN NOT NULL,
+    FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
+    CONSTRAINT unique_availability UNIQUE (EmployeeID, AvailabilityDate, StartTime, EndTime)
 );
 
 CREATE TABLE appointment (
     ID SERIAL PRIMARY KEY,
-    AppDate DATE,
-    StartTime TIME,
-    EndTime TIME,
-    ClientID INTEGER,
-    TotalPrice NUMERIC(6, 2) DEFAULT 0,
-    FOREIGN KEY (ClientID) REFERENCES clients(ID)
-);
-
-CREATE TABLE appointmentTreatments (
-    ID SERIAL PRIMARY KEY,
-    treatmentID INTEGER,
-    appointmentID INTEGER,
-    FOREIGN KEY (treatmentID) REFERENCES treatment(ID),
-    FOREIGN KEY (appointmentID) REFERENCES appointment(ID) ON DELETE CASCADE
+    appDate DATE,
+    startTime TIME,
+    endTime TIME,
+    clientID INTEGER NOT NULL,
+    employeeID INTEGER NOT NULL,
+    serviceID INTEGER NOT NULL,
+    FOREIGN KEY (ClientID) REFERENCES client(ID),
+    FOREIGN KEY (employeeID) REFERENCES employee(ID),
+    FOREIGN KEY (serviceID) REFERENCES service(ID),
+    CONSTRAINT unique_appointment UNIQUE (EmployeeID, appDate, StartTime, EndTime)
 );
 
 
-CREATE OR REPLACE FUNCTION update_appointment_price_after_insert()
-RETURNS TRIGGER AS $$
-Declare  
- appointmentPrice NUMERIC(6, 2);
-BEGIN
-SELECT SUM(treatment.PRICE) into appointmentPrice
-FROM treatment INNER JOIN appointmentTreatments ON treatment.ID = appointmentTreatments.treatmentID
-INNER JOIN appointment ON appointment.ID = appointmentTreatments.appointmentID
-WHERE appointment.ID = new.appointmentID
-GROUP BY appointment.ID;
+CREATE DOMAIN user_type_domain AS VARCHAR(20)
+DEFAULT 'client'
+CHECK (VALUE IN ('admin', 'client', 'employee'));
 
-UPDATE appointment SET TotalPrice = appointmentPrice WHERE new.appointmentID = id;
-
-RETURN NULL;
-END
-$$ LANGUAGE PLPGSQL;
-
-CREATE TRIGGER update_price_after_insert
-AFTER INSERT
- ON appointmentTreatments
-FOR EACH ROW
-EXECUTE PROCEDURE update_appointment_price_after_insert();
-
-CREATE OR REPLACE FUNCTION update_appointment_price_after_delete()
-RETURNS TRIGGER AS $$
-Declare  
- appointmentPrice NUMERIC(6, 2);
-BEGIN
-SELECT SUM(treatment.PRICE) into appointmentPrice
-FROM treatment INNER JOIN appointmentTreatments ON treatment.ID = appointmentTreatments.treatmentID
-INNER JOIN appointment ON appointment.ID = appointmentTreatments.appointmentID
-WHERE appointment.ID = old.appointmentID
-GROUP BY appointment.ID;
-
-SELECT COALESCE(appointmentPrice,0) into appointmentPrice;
-
-UPDATE appointment SET TotalPrice = appointmentPrice WHERE old.appointmentID = id;
-
-RETURN old;
-END
-$$ LANGUAGE PLPGSQL;
-
-CREATE TRIGGER update_price_after_delete
-AFTER DELETE
- ON appointmentTreatments
-FOR EACH ROW
-EXECUTE PROCEDURE update_appointment_price_after_delete();
-
-
+CREATE TABLE user_sessions (
+  session_id UUID PRIMARY KEY,
+  expiry_time TIMESTAMPTZ NOT NULL,
+  user_id INTEGER NOT NULL,
+  user_type user_type_domain NOT NULL,
+  csrf_token UUID NOT NULL,
+);
