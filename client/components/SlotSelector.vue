@@ -8,7 +8,7 @@
             :key="index"
             @click="selectSlot(slot)"
             :class="['border', 'hover:bg-gray-100', isSelected(slot) ? 'border-blue-500' : 'border-blue-100', isSelected(slot) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'm-2', 'text-center']">
-            <p>{{ `${slot.starttime.slice(0,5)} - ${slot.endtime.slice(0,5)}` }}</p>
+            <p>{{ `${slot.startTime.slice(0,5)}` }}</p>
         </div>
 
 
@@ -22,7 +22,7 @@
 <script setup>
 
 // const emits = defineEmits(['update:selectedSlot']);
-const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID'])
+const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID', 'duration'])
 const config = useRuntimeConfig();
 
 const availableSlots = ref(null);
@@ -32,7 +32,7 @@ const csrf_token = ref(null);
 const getSlot = async () => {
 
 try {
-    const response = await fetch(`${config.public.API_BASE_URL}/available-slots?date=${props.selectedDate}&id=${props.selectedEmployeeID}`, {
+    const response = await fetch(`${config.public.API_BASE_URL}/available-slots?date=${props.selectedDate}&id=${props.selectedEmployeeID}&duration=${props.duration}`, {
     credentials: "include",
     });
 

@@ -16,11 +16,17 @@
       <div class="w-10/12 border rounded-md mx-auto border-blue-100">
         
         
-        <button class="btn mx-1 my-4" :disabled="stage === 1" @click="prevStage">Back</button>
-        <button class="btn mx-1 my-4" :disabled="!isStageCompleted" @click="nextStage">Next Stage</button>
+        <button class="btn mx-1 my-4" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+</svg>
+</button>
+        <button class="btn mx-1 my-4" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+</svg>
+</button>
         
         <div v-if="stage === 1">
-            <ServiceForm @update:selectedServiceID="selectedServiceID = $event" :selectedServiceID='selectedServiceID'/>
+            <ServiceForm @update:selectedServiceID="selectedServiceID = $event" @update:serviceDuration="duration = $event" :selectedServiceID='selectedServiceID'/>
         </div>
 
         <div v-else-if="stage === 2">
@@ -35,7 +41,7 @@
         </div>
         
         <div v-else>
-          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID"/>
+          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID" :duration="duration"/>
         </div>
         
       </div>
@@ -48,12 +54,13 @@
           <div class="space-y-3">
             <div class="grid grid-cols-3 gap-4">
           <div class="h-2 bg-slate-200 rounded col-span-2">Hello</div>
-          <div class="h-2 bg-slate-200 rounded col-span-1"></div>
+          <div class="h-2 bg-slate-200 rounded col-span-1">Time</div>
         </div>
-        <div class="h-2 bg-slate-200 rounded"></div>
+        <div class="h-2 bg-slate-200 rounded">Name</div>
       </div>
     </div>
-  </div> -->
+  </div>
+    </div> -->
 
 
     </div>
@@ -70,6 +77,7 @@ definePageMeta({
 
 const stage = ref(1);
 const selectedServiceID = ref(null);
+const duration = ref(null);
 const selectedDate = ref(new Date().toISOString().slice(0,10));
 const selectedEmployeeID = ref(null);
 const selectedSlot = ref(null);

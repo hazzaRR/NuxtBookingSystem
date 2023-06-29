@@ -292,9 +292,14 @@ app.get("/available-employees", async (req, res) => {
 
     try {
 
+        
         const {date} = req.query;
+        
+        const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.available = $2", [date, true]);
+        const dateToFind = new Date(date);
+
+        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.DayOfWeek = $1 AND employee_availability.available = $2", [weekday[dateToFind.getDay()], true]);
 
         console.log(getEmployees.rows)
         return res.json({message:"Employees Successfully fetched", employees: getEmployees.rows})
@@ -329,13 +334,13 @@ app.get("/available-slots", async (req, res) => {
 
         const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-        const {date, id} = req.query;
+        const {date, id, duration} = req.query;
 
         const dateToFind = new Date(date);
 
-        const checkIfBlocked = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeID = $1 AND blockedDate = $2", [id, dateToFind]);
+        console.log(duration, typeof duration)
 
-        // console.log(checkIfBlocked);
+        const checkIfBlocked = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeID = $1 AND blockedDate = $2", [id, dateToFind]);
 
         if (checkIfBlocked.rowCount > 0) {
             return res.status(204).json({message: "No availability for that day", availability: []});
@@ -355,6 +360,8 @@ app.get("/available-slots", async (req, res) => {
 
         const appointmentsRows = appointmentQuery.rows;
 
+        console.log(appointmentsRows);
+
         // Generate the available time slots with 15-minute intervals
         const availableTimeSlots = [];
         for (const { starttime, endtime } of availabilityRows) {
@@ -364,8 +371,9 @@ app.get("/available-slots", async (req, res) => {
             // Generate slots with 15-minute intervals
             let currentSlotTime = new Date(slotStartTime);
             while (currentSlotTime < slotEndTime) {
-            const slotEndTime = new Date(currentSlotTime);
-            slotEndTime.setMinutes(currentSlotTime.getMinutes() + 15);
+                const slotEndTime = new Date(currentSlotTime);
+                slotEndTime.setMinutes(currentSlotTime.getMinutes() + parseInt(duration));
+                console.log(currentSlotTime, slotEndTime);
 
             // Check if the slot overlaps with any booked appointments
             let slotOverlaps = false;
@@ -378,6 +386,7 @@ app.get("/available-slots", async (req, res) => {
                 (slotEndTime > appointmentStartTime && slotEndTime <= appointmentEndTime) ||
                 (currentSlotTime <= appointmentStartTime && slotEndTime >= appointmentEndTime)
                 ) {
+                    console.log(currentSlotTime);
                 slotOverlaps = true;
                 break;
                 }
@@ -387,8 +396,7 @@ app.get("/available-slots", async (req, res) => {
             if (!slotOverlaps) {
 
             availableTimeSlots.push({
-                startTime: new Date(currentSlotTime),
-                endTime: new Date(slotEndTime),
+                startTime: currentSlotTime.toLocaleTimeString(),
                 });
             }
 
