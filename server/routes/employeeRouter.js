@@ -133,27 +133,29 @@ router.get('/account-details', authenticateEmployee, async(req, res) => {
 
 });
 
-router.post("/add-availability", authenticateEmployee, validate_csrfToken, async (req, res) => {
+router.put("/update-availability", authenticateEmployee, validate_csrfToken, async (req, res) => {
 
     const user = req.user;
-    let {date, slots} = req.body;
-    console.log(date);
-    console.log(slots);
+    let {availability} = req.body;
     try {
-        for (let i = 0; i < slots.length; i++) {
+        for (let i = 0; i < availability.length; i++) {
 
-            const availability = await pool.query("INSERT INTO employee_availability (employeeID, AvailabilityDate, StartTime, EndTime, available) VALUES($1, $2, $3, $4, $5) RETURNING *", [user.id, date, slots[i].startTime, slots[i].endTime, true]);
+            console
 
+            if (availability[i].available === false) {
+
+                const updateAvail = await pool.query("UPDATE employee_availability SET starttime = $1, endtime = $2, available = $3 WHERE employeeid = $4 AND DayOfWeek = $5", [null, null, availability[i].available, user.id, availability[i].dayofweek]);
+            }
+            else {
+                const updateAvail = await pool.query("UPDATE employee_availability SET starttime = $1, endtime = $2, available = $3 WHERE employeeid = $4 AND DayOfWeek = $5", [availability[i].starttime, availability[i].endtime, availability[i].available, user.id, availability[i].dayofweek]);
+            }
+            
         };
 
         return res.json({message: "Availability Successfully added"});
 
     } catch (err) {
-        console.error(err.detail);
-
-        if (err.code === '23505') {
-            return res.status(409).json({message:"Time slot already exists"});
-        };
+        console.error(err);
 
         return res.status(500).json({message:"Error creating user"});
     }

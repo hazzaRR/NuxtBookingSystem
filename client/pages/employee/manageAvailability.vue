@@ -8,17 +8,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
 <span>{{serverMessage}}</span>
 </div>
-    <label>Date:</label>
-    <div class="relative mb-6">
-    <input type="date" v-model="selectedDate" class="input input-bordered w-full max-w-xs"/>
-    </div>
-    <label>Time slot length:</label>
-    <div class="relative mb-6">
-    <input type="number" v-model="defaultSlotLength" class="input input-bordered w-full max-w-xs"/>
-    </div>
 
-
-    <div v-if="!currentSetAvailability">
+    <!-- <div v-if="!currentSetAvailability">
       <h1>No availability for this date</h1>
     </div>
 
@@ -45,42 +36,48 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> -->
 
     <div class="overflow-x-auto">
     <table class="table">
       <thead>
         <tr>
+          <th>Day</th>
+          <th>Available</th>
           <th>Start Time</th>
           <th>End Time</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(slot, index) in timeSlots" :key="index">
+        <tr v-for="(day, index) in availability" :key="index">
           <td>
             <div class="relative mb-6">
-            <input type="time" v-model="slot.startTime" class="input input-bordered w-full max-w-xs" @input="updateEndTime(index)" />
+            <p type="time" class="input input-bordered w-full max-w-xs">{{ day.dayofweek }}</p>
+            </div>
+          </td>
+          <td>
+            <div class="relative mb-6">
+              <input type="checkbox" class="toggle toggle-primary" v-model="day.available"/>
+            </div>
+          </td>
+          <td>
+            <div class="relative mb-6">
+            <input type="time" step="900" v-model="day.starttime" class="input input-bordered w-full max-w-xs" :disabled="!day.available"/>
             </div>
           </td>
           <td >
             <div class="relative mb-6">
-            <input type="time" v-model="slot.endTime" class="input input-bordered w-full max-w-xs" />
+            <input type="time" step="900" v-model="day.endtime" class="input input-bordered w-full max-w-xs" :disabled="!day.available"/>
             </div>
-          </td>
-          <td>
-            <button @click="removeTimeSlot(index)" class="btn btn-error">Remove</button>
           </td>
         </tr>
         <tr>
           <td colspan="3">
-            <button @click="addTimeSlot" class="btn btn-accent">Add Time Slot</button>
+            <button @click="updateAvailability" class="btn btn-accent">Update</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <button @click="submitAvailablity" class="btn btn-primary">Submit</button>
-
   </div>
 
     </div>
@@ -100,12 +97,8 @@ const defaultSlotLength = ref(30);
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
-const currentSetAvailability = ref(null);
-
-const timeSlots = ref([
-  { startTime: '09:00', endTime: '09:30' }
-])
-
+const availability = ref(null);
+const csrf_token = ref(null);
 
 const getAvailability = async () => {
 
@@ -123,8 +116,8 @@ const getAvailability = async () => {
         const data = await response.json();
 
         if (response.status === 200) {
-          console.log(data.availability)
-          currentSetAvailability.value = data.availability;
+          console.log(data.availability);
+          availability.value = data.availability;
         }
         else if (response.status === 409) {
 
@@ -138,44 +131,29 @@ const getAvailability = async () => {
 };
 
 
-onBeforeMount(() => {
-
+onBeforeMount(async () => {
+  csrf_token.value = await getCSRFToken();
   getAvailability();
 })
 
-const addTimeSlot = () => {
-      timeSlots.value.push({ startTime: '00:00', endTime: '00:30' });
-};
-
-const removeTimeSlot = (index) => {
-      timeSlots.value.splice(index, 1);
-};
-
-const updateEndTime = (index) => {
-      const startTime = new Date(`2000-01-01T${timeSlots.value[index].startTime}`);
-      const endTime = new Date(startTime.getTime() + defaultSlotLength.value * 60000); // 30 minutes in milliseconds
-      const formattedEndTime = endTime.toTimeString().slice(0, 5);
-
-      timeSlots.value[index].endTime = formattedEndTime;
-
-}
-
-
-const submitAvailablity = async (event) => {
-    const slotData = {
-        date: selectedDate.value,
-        slots: timeSlots.value
+const updateAvailability = async (event) => {
+    const employeeAvailability = {
+      availability: availability.value,
     };
 
+    console.log(availability.value);
 
-      const response = await fetch(`${config.public.API_BASE_URL}/employee/add-availability`, 
+
+      const response = await fetch(`${config.public.API_BASE_URL}/employee/update-availability`, 
         {
-        method: "POST",
+        method: "PUT",
         headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrf_token.value
+
         },
         credentials: "include",
-        body: JSON.stringify(slotData)
+        body: JSON.stringify(employeeAvailability)
         });
 
         const data = await response.json();
@@ -191,8 +169,6 @@ const submitAvailablity = async (event) => {
             serverMessage.value = data.message;
         }
 
-
-        timeSlots.value = [{ startTime: '09:00', endTime: '09:30' }]
 
 };
 
