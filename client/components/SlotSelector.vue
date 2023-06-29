@@ -21,7 +21,7 @@
 
 <script setup>
 
-// const emits = defineEmits(['update:selectedSlot']);
+const emits = defineEmits(['update:bookingstatus', 'update:serverMessage']);
 const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID', 'duration'])
 const config = useRuntimeConfig();
 
@@ -76,16 +76,16 @@ const BookSlot = async () => {
             date: props.selectedDate,
             employeeID: props.selectedEmployeeID,
             serviceID: props.selectedServiceID,
-            slot: selectedSlot.value
+            slot: selectedSlot.value,
+            duration: props.duration
         })
     });
 
     const data = await response.json();
 
         if (response.status === 200) {
-
-            console.log("hello")
-
+            emits('update:bookingstatus', 'Booking Confirmation');
+            emits('update:serverMessage', `Your booking has been successfully confirmed for the ${data.booking.starttime.slice(0,5)} on the ${new Date(data.booking.appdate).toLocaleDateString()}`);
         }
 };
 

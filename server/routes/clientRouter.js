@@ -72,7 +72,6 @@ const reauthenticateClient = async (req, res, next) => {
 const validate_csrfToken = async (req, res, next) => {
 
     const  csrfToken = req.get('X-CSRF-Token');
-    console.log(csrfToken);
 
     // if no sessionID is provided return unauthorised status, if there is no crsftoken provided return forbidden status code
     if (!csrfToken) {
@@ -88,7 +87,6 @@ const validate_csrfToken = async (req, res, next) => {
             const storedCsrfToken = await pool.query('SELECT csrf_token FROM user_sessions WHERE session_id = $1', [auth_token]);
 
             if (csrfToken === storedCsrfToken.rows[0].csrf_token) {
-                console.log("success!")
                 next();
 
                 // else return forbidden status saying token is invalid
@@ -261,7 +259,7 @@ router.post("/book-slot", authenticateClient, validate_csrfToken, async (req, re
 
         const user = req.user;
 
-        const {date, employeeID, serviceID, slot} = req.body;
+        const {date, employeeID, serviceID, slot, duration} = req.body;
 
         console.log(user.id)
         console.log(date)
@@ -269,12 +267,11 @@ router.post("/book-slot", authenticateClient, validate_csrfToken, async (req, re
         console.log(serviceID)
         console.log(slot)
 
-        const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot.starttime, slot.endtime, employeeID, serviceID, user.id]);
+        const slotEndTime = new Date(`${date} ${slot.startTime}`);
+        slotEndTime.setMinutes(slotEndTime.getMinutes() + parseInt(duration));
 
-        const updateAvailabilty = await pool.query("UPDATE employee_availability SET available = $1 WHERE AvailabilityDate = $2 AND starttime = $3 AND endtime = $4 AND employeeID = $5 RETURNING *", [false, date, slot.starttime, slot.endtime, employeeID]);
-
-
-        return res.json({message:"Booking Confirmed"})
+        const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot.startTime, slotEndTime.toLocaleTimeString(), employeeID, serviceID, user.id]);
+        return res.json({message:"Booking Confirmed", booking: bookSlot.rows[0]})
         
     } catch (error) {
         console.log(error)

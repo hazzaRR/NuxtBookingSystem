@@ -1,19 +1,10 @@
 <template>
     <div>
 
+      <p>{{ bookingStatus }}</p>
+
         <h1>Book an Appointment</h1>
-
-        <div v-if="successMessage" class="alert alert-success max-w-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span>{{serverMessage}}</span>
-        </div>
-        <div v-if="errorMessage" class="alert alert-error max-w-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        <span>{{serverMessage}}</span>
-        </div>
-
-
-      <div class="w-10/12 border rounded-md mx-auto border-blue-100">
+  <div class="w-10/12 border rounded-md mx-auto border-blue-100">
         
         
         <button class="btn mx-1 my-4" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -40,8 +31,8 @@
           <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
         </div>
         
-        <div v-else>
-          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID" :duration="duration"/>
+        <div v-else-if="stage === 4">
+          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID" :duration="duration" @update:bookingstatus="bookingStatus = $event" @update:serverMessage="serverMessage = $event"/>
         </div>
         
       </div>
@@ -62,6 +53,7 @@
   </div>
     </div> -->
 
+    <Alert v-if="bookingStatus !== null" :messageType="bookingStatus" :message="serverMessage" @closeAlert="refreshPage()"/>
 
     </div>
 </template>
@@ -81,6 +73,8 @@ const duration = ref(null);
 const selectedDate = ref(new Date().toISOString().slice(0,10));
 const selectedEmployeeID = ref(null);
 const selectedSlot = ref(null);
+const bookingStatus = ref(null);
+const serverMessage = ref(null);
 
 const isStageCompleted = computed(() => {
   switch (stage.value) {
@@ -98,25 +92,20 @@ const isStageCompleted = computed(() => {
 });
 
 
+const refreshPage = () => {
 
-const getEmployees = async () => {
+  stage.value = 1;
+  selectedServiceID.value = null;
+  duration.value = ref(null);
+  selectedDate.value = new Date().toISOString().slice(0,10);
+  selectedEmployeeID.value = null;
+  selectedSlot.value = null;
+  bookingStatus.value = null;
+  serverMessage.value = null;
 
-try {
-
-    const response = await fetch(`${config.public.API_BASE_URL}/employees?date=${selectedDate}`, {
-    credentials: "include",
-    });
-
-    const data = await response.json();
-
-    if (response === 200) {
-        availableServices.value = data.services;
-    };
-    
-} catch (error) {
-    console.log(error);
-}
 };
+
+
 
 const nextStage = () => {
     stage.value++;
