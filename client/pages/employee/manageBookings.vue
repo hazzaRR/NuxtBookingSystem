@@ -4,18 +4,6 @@
 
         <h1>Manage Bookings</h1>
 
-      <p>{{isMobile}}</p>
-
-        <div v-if="$device.isDesktop">
-      Desktop
-    </div>
-    <div v-else-if="$device.isTablet">
-      Tablet
-    </div>
-    <div v-else>
-      Mobile
-    </div>
-
         <dialog id="editBookingDetails" class="modal modal-bottom sm:modal-middle">
         <form method="dialog" class="modal-box">
           <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

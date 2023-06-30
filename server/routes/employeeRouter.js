@@ -345,6 +345,25 @@ router.delete('/appointment', authenticateEmployee, validate_csrfToken, async(re
 
 });
 
+router.post('/block-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { date } = req.body;
+
+        const blockedDay = await pool.query("INSERT INTO employee_blocked_days (employeeid, blockedDate) VALUES ($1, $2)", [user.id, date]);
+
+        return res.json({message: "Date successfully blocked from employee's availability"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
 
 
     

@@ -9,7 +9,7 @@
 
 const links = [
     {name: "Dashboard", link: '/employee'},
-    {name: "Add Availability", link: '/employee/manageAvailability'},
+    {name: "Manage Availability", link: '/employee/manageAvailability'},
     {name: "Manage Bookings", link: '/employee/manageBookings'},
     {name: "Manage Account", link: '/employee/manageAccount'}
 ]
