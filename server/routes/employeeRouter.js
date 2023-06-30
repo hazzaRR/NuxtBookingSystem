@@ -382,6 +382,25 @@ router.post('/block-day', authenticateEmployee, validate_csrfToken, async(req, r
 
 });
 
+router.delete('/block-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { date } = req.body;
+
+        const blockedDay = await pool.query("DELETE FROM employee_blocked_days WHERE employeeid = $1 AND BlockedDate = $2", [user.id, date]);
+
+        return res.json({message: "Blocked day successfully removed"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
 
 
     
