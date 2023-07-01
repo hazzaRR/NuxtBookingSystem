@@ -11,8 +11,6 @@
         </div>
 
 
-        <div>{{ blockedDays }}</div>
-
     <div v-if="blockedDays === null || blockedDays === []">
         currently no uncoming blocked days from your availability
     </div>
@@ -38,11 +36,37 @@
                 <button class="btn btn-error" @click="removeDate(day.blockedDate)">Delete</button>
                 </div>
             </td>
-            </tr>
+        </tr>
+        <td colspan="3">
+        <button onclick="addBlockedDay.showModal()" class="btn btn-accent">Add</button>
+      </td>
         </tbody>
         </table>
     </div>
   </div>
+
+  <dialog id="addBlockedDay" class="modal modal-bottom sm:modal-middle">
+        <form method="dialog" class="modal-box">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <div class="form-control w-full max-w-xs">
+            <label class="label">
+            <span class="label-text">Date to Block:</span>
+            </label>
+            <input type="date" class="input input-bordered w-full max-w-xs m-2" v-model="date">
+            </div>
+            <a class="btn btn-primary m-2" @click="removeDate()">Block</a>
+        </form>
+        </dialog>
+
+        <div v-if="isMobile" class="w-full h-full">
+          <FullCalendar :options="mobileCalendarOptions" :events="events"/>
+        </div>
+        <div v-else class="flex items-center justify-center">
+
+          <div class="w-3/4">
+            <FullCalendar :options="calendarOptions" :events="events"/>
+          </div>
+        </div>
 
 
     </div>
@@ -62,6 +86,7 @@ const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
 const csrf_token = ref(null);
+const date = ref(new Date().toISOString().slice(0,10))
 
 onBeforeMount(async () => {
   csrf_token.value = await getCSRFToken();
@@ -76,7 +101,8 @@ try {
       {
       method: "GET",
       headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+
       },
       credentials: "include"
       });
@@ -112,15 +138,16 @@ const removeDate = async () => {
 
         },
         credentials: "include",
-        body: JSON.stringify(employeeAvailability)
+        body: JSON.stringify({date: date.value})
         });
 
         const data = await response.json();
 
         if (response.status === 200) {
-          successMessage.value = true;
+            successMessage.value = true;
             errorMessage.value = false;
             serverMessage.value = data.message;
+            await getBlockedDays();
         }
         else if (response.status === 409) {
           successMessage.value = false;
