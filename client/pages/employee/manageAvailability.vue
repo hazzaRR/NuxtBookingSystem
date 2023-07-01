@@ -9,35 +9,6 @@
 <span>{{serverMessage}}</span>
 </div>
 
-    <!-- <div v-if="!currentSetAvailability">
-      <h1>No availability for this date</h1>
-    </div>
-
-    <div v-else class="overflow-x-auto">
-            <table class="table">
-                <thead>
-                    <tr>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Available</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(availabilitySlot, index) in currentSetAvailability" :key="index" class="hover">
-                    <td>
-                    {{availabilitySlot.starttime}}
-                    </td>
-                    <td>
-                    {{availabilitySlot.endtime}}
-                    </td>
-                    <td>
-                    {{availabilitySlot.available}}
-                    </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div> -->
-
     <div class="flex items-center justify-center">
     <div class="w-3/5">
     <table class="table">

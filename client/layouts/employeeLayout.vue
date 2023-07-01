@@ -10,6 +10,7 @@
 const links = [
     {name: "Dashboard", link: '/employee'},
     {name: "Manage Availability", link: '/employee/manageAvailability'},
+    {name: "Manage Blocked Days", link: '/employee/blockDays'},
     {name: "Manage Bookings", link: '/employee/manageBookings'},
     {name: "Manage Account", link: '/employee/manageAccount'}
 ]

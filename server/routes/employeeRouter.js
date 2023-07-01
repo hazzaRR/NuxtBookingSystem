@@ -345,7 +345,7 @@ router.delete('/appointment', authenticateEmployee, validate_csrfToken, async(re
 
 });
 
-router.get('/block-days', authenticateEmployee, validate_csrfToken, async(req, res) => {
+router.get('/block-days', authenticateEmployee, async(req, res) => {
 
     try {
 

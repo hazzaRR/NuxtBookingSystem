@@ -45,12 +45,12 @@ CREATE TABLE employee_availability (
     CONSTRAINT unique_availability UNIQUE (EmployeeID, DayOfWeek)
 );
 
-
 CREATE TABLE employee_blocked_days (
     ID SERIAL PRIMARY KEY,
     employeeID INTEGER NOT NULL,
     blockedDate DATE,
     FOREIGN KEY (employeeID) REFERENCES employee(ID)
+    CONSTRAINT unique_blockedDay UNIQUE (employeeID, blockedDate)
 );
 
 CREATE TABLE appointment (

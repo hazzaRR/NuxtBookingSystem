@@ -67,11 +67,12 @@ const createTables = async () => {
       
       
       CREATE TABLE employee_blocked_days (
-          ID SERIAL PRIMARY KEY,
-          employeeID INTEGER NOT NULL,
-          blockedDate DATE,
-          FOREIGN KEY (employeeID) REFERENCES employee(ID)
-      );
+        ID SERIAL PRIMARY KEY,
+        employeeID INTEGER NOT NULL,
+        blockedDate DATE,
+        FOREIGN KEY (employeeID) REFERENCES employee(ID)
+        CONSTRAINT unique_blockedDay UNIQUE (employeeID, blockedDate)
+    );
       
       CREATE TABLE appointment (
           ID SERIAL PRIMARY KEY,
