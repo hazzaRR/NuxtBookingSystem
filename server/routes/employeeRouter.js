@@ -351,7 +351,7 @@ router.get('/block-days', authenticateEmployee, async(req, res) => {
 
         const user = req.user;
 
-        const blockedDays = await pool.query("SELECT id, blockedDate from employee_blocked_days WHERE employeeid = $1 AND blockedDate >= $2", [user.id, new Date()]);
+        const blockedDays = await pool.query("SELECT id, CAST(blockedDate AS TEXT) from employee_blocked_days WHERE employeeid = $1 AND blockedDate >= $2", [user.id, new Date()]);
 
         return res.json({message: "Date successfully blocked from employee's availability", blockedDays: blockedDays.rows});
         

@@ -28,12 +28,12 @@
             <tr v-for="(day, index) in blockedDays" :key="index">
             <td>
                 <div class="relative mb-6">
-                <p class="input input-bordered w-full max-w-xs flex items-center">{{ day.blockedDate }}</p>
+                <p class="input input-bordered w-full max-w-xs flex items-center">{{ new Date(day.blockeddate).toLocaleDateString() }}</p>
                 </div>
             </td>
             <td>
                 <div class="relative mb-6">
-                <button class="btn btn-error" @click="removeDate(day.blockedDate)">Delete</button>
+                <button class="btn btn-error" @click="removeDate(day.blockeddate, index)">Delete</button>
                 </div>
             </td>
         </tr>
@@ -54,7 +54,7 @@
             </label>
             <input type="date" class="input input-bordered w-full max-w-xs m-2" v-model="date">
             </div>
-            <a class="btn btn-primary m-2" @click="removeDate()">Block</a>
+            <a class="btn btn-primary m-2" @click="addDate()">Block</a>
         </form>
         </dialog>
 
@@ -125,7 +125,7 @@ try {
 };
 
 
-const removeDate = async () => {
+const removeDate = async (dateToRemove, index) => {
 
     try {
 
@@ -138,7 +138,7 @@ const removeDate = async () => {
 
         },
         credentials: "include",
-        body: JSON.stringify({date: date.value})
+        body: JSON.stringify({date: dateToRemove})
         });
 
         const data = await response.json();
@@ -147,7 +147,7 @@ const removeDate = async () => {
             successMessage.value = true;
             errorMessage.value = false;
             serverMessage.value = data.message;
-            await getBlockedDays();
+            blockedDays.value.splice(index, 1);
         }
         else if (response.status === 409) {
           successMessage.value = false;
@@ -158,6 +158,42 @@ const removeDate = async () => {
     } catch (error) {
         console.log(error);
     }
+
+};
+
+const addDate = async () => {
+
+try {
+
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/block-day`, 
+    {
+    method: "POST",
+    headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf_token.value
+
+    },
+    credentials: "include",
+    body: JSON.stringify({date: date.value})
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+        successMessage.value = true;
+        errorMessage.value = false;
+        serverMessage.value = data.message;
+        await getBlockedDays();
+    }
+    else if (response.status === 409) {
+      successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = data.message;
+    }
+    
+} catch (error) {
+    console.log(error);
+}
 
 };
 
