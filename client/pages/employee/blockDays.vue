@@ -11,7 +11,10 @@
         </div>
 
 
-    <div v-if="blockedDays === null || blockedDays === []">
+    <button onclick="addBlockedDay.showModal()" class="btn btn-accent">Add</button>
+
+
+    <div v-if="isEmpty">
         currently no uncoming blocked days from your availability
     </div>
 
@@ -36,10 +39,7 @@
                 <button class="btn btn-error" @click="removeDate(day.blockeddate, index)">Delete</button>
                 </div>
             </td>
-        </tr>
-        <td colspan="3">
-        <button onclick="addBlockedDay.showModal()" class="btn btn-accent">Add</button>
-      </td>
+            </tr>
         </tbody>
         </table>
     </div>
@@ -58,17 +58,6 @@
         </form>
         </dialog>
 
-        <div v-if="isMobile" class="w-full h-full">
-          <FullCalendar :options="mobileCalendarOptions" :events="events"/>
-        </div>
-        <div v-else class="flex items-center justify-center">
-
-          <div class="w-3/4">
-            <FullCalendar :options="calendarOptions" :events="events"/>
-          </div>
-        </div>
-
-
     </div>
 </template>
 
@@ -81,7 +70,7 @@ definePageMeta({
     layout: "employee-layout"
 });
 
-const blockedDays = ref(null);
+const blockedDays = ref([]);
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
@@ -92,6 +81,8 @@ onBeforeMount(async () => {
   csrf_token.value = await getCSRFToken();
   await getBlockedDays();
 })
+
+const isEmpty = computed(() => blockedDays.value.length === 0);
 
 const getBlockedDays = async () => {
 

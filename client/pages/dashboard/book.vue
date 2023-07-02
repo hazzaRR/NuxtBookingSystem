@@ -2,6 +2,13 @@
     <div>
 
     <div class="w-10/12 border rounded-md mx-auto border-blue-100">
+
+      <ul class="steps steps-horizontal">
+        <li :class="['step', {'step-primary': stage >= 1}]">Service</li>
+        <li :class="['step', {'step-primary': stage >= 2}]">Date</li>
+        <li :class="['step', {'step-primary': stage >= 3}]">Barber</li>
+        <li :class="['step', {'step-primary': stage >= 4}]">Time</li>
+      </ul>
         
         
     <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
