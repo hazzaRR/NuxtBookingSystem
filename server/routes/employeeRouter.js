@@ -401,6 +401,62 @@ router.delete('/block-day', authenticateEmployee, validate_csrfToken, async(req,
 
 });
 
+router.get('/adjust-day', authenticateEmployee, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        const adjusted_availability = await pool.query("SELECT id, CAST(DATE AS TEXT), starttime, endtime from employee_one_off_availability WHERE employeeid = $1 AND Date >= $2", [user.id, new Date()]);
+
+        return res.json({message: "Adjusted availability dates sucessfully fetched", adjusted_availability: adjusted_availability.rows});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
+router.post('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { date, startime, endtime } = req.body;
+
+        const blockedDay = await pool.query("INSERT INTO employee_blocked_days (employeeid, blockedDate) VALUES ($1, $2)", [user.id, date]);
+
+        return res.json({message: "Date successfully blocked from employee's availability"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
+router.delete('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { date } = req.body;
+
+        const blockedDay = await pool.query("DELETE FROM employee_blocked_days WHERE employeeid = $1 AND BlockedDate = $2", [user.id, date]);
+
+        return res.json({message: "Blocked day successfully removed"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
 
 
     
