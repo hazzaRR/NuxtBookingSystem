@@ -407,7 +407,7 @@ router.get('/adjust-day', authenticateEmployee, async(req, res) => {
 
         const user = req.user;
 
-        const adjusted_availability = await pool.query("SELECT id, CAST(DATE AS TEXT), starttime, endtime from employee_one_off_availability WHERE employeeid = $1 AND Date >= $2", [user.id, new Date()]);
+        const adjusted_availability = await pool.query("SELECT id, CAST(AdjustedDate AS TEXT), starttime, endtime from employee_one_off_availability WHERE employeeid = $1 AND AdjustedDate >= $2", [user.id, new Date()]);
 
         return res.json({message: "Adjusted availability dates sucessfully fetched", adjusted_availability: adjusted_availability.rows});
         
@@ -426,7 +426,7 @@ router.post('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, 
         const user = req.user;
         const { date, startime, endtime } = req.body;
 
-        const blockedDay = await pool.query("INSERT INTO adjusted_availability (employeeid, DATE, startime, endtime) VALUES ($1, $2, $3, $4)", [user.id, date, startime, endtime]);
+        const adjusted_availability = await pool.query("INSERT INTO employee_one_off_availability (employeeid, AdjustedDate, startime, endtime) VALUES ($1, $2, $3, $4)", [user.id, date, startime, endtime]);
 
         return res.json({message: "Date successfully adjusted for employee's availability"});
         
@@ -445,9 +445,9 @@ router.delete('/adjust-day', authenticateEmployee, validate_csrfToken, async(req
         const user = req.user;
         const { date } = req.body;
 
-        const blockedDay = await pool.query("DELETE FROM employee_blocked_days WHERE employeeid = $1 AND BlockedDate = $2", [user.id, date]);
+        const adjusted_availability = await pool.query("DELETE FROM employee_one_off_availability WHERE employeeid = $1 AND AdjustedDate = $2", [user.id, date]);
 
-        return res.json({message: "Blocked day successfully removed"});
+        return res.json({message: "Adjusted day successfully removed"});
         
     } catch (error) {
         console.log(error)

@@ -77,12 +77,12 @@ const createTables = async () => {
     CREATE TABLE employee_one_off_availability (
       ID SERIAL PRIMARY KEY,
       EmployeeID INTEGER,
-      Date DATE,
+      AdjustedDate DATE,
       StartTime TIME,
       EndTime TIME,
       available BOOLEAN NOT NULL,
       FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
-      CONSTRAINT unique_one_off_availability UNIQUE (EmployeeID, Date)
+      CONSTRAINT unique_one_off_availability UNIQUE (EmployeeID, AdjustedDate)
   );
   
       CREATE TABLE appointment (
