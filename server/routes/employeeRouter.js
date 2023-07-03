@@ -424,9 +424,9 @@ router.post('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, 
     try {
 
         const user = req.user;
-        const { date, startime, endtime } = req.body;
+        const { date, starttime, endtime } = req.body;
 
-        const adjusted_availability = await pool.query("INSERT INTO employee_one_off_availability (employeeid, AdjustedDate, startime, endtime) VALUES ($1, $2, $3, $4)", [user.id, date, startime, endtime]);
+        const adjusted_availability = await pool.query("INSERT INTO employee_one_off_availability (employeeid, AdjustedDate, starttime, endtime) VALUES ($1, $2, $3, $4)", [user.id, date, starttime, endtime]);
 
         return res.json({message: "Date successfully adjusted for employee's availability"});
         

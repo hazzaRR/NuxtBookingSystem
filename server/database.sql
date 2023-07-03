@@ -59,7 +59,6 @@ CREATE TABLE employee_one_off_availability (
     AdjustedDate DATE,
     StartTime TIME,
     EndTime TIME,
-    available BOOLEAN NOT NULL,
     FOREIGN KEY (EmployeeID) REFERENCES employee(ID),
     CONSTRAINT unique_one_off_availability UNIQUE (EmployeeID, AdjustedDate)
 );
