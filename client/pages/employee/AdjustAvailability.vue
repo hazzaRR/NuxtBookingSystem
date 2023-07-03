@@ -26,7 +26,7 @@
             <th>Date</th>
             <th>Start Time</th>
             <th>End Time</th>
-            <th></th>
+            <th>Options</th>
             </tr>
         </thead>
         <tbody>
@@ -49,7 +49,7 @@
             <td>
                 <div class="relative mb-6">
 
-                    <button class="btn btn-warning mx-2 btn-square" @click="openEditServiceModal(service)"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <button class="btn btn-warning mx-2 btn-square" @click="openEditDayModal(day)"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                     </button>
                     <button class="btn btn-error mx-2 btn-square" @click="removeDate(day.adjusteddate, index)"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -88,6 +88,31 @@
         </form>
         </dialog>
 
+        <dialog id="editDayModal" class="modal modal-bottom sm:modal-middle">
+    <form method="dialog" class="modal-box">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        <div class="form-control w-full max-w-xs">
+        <label class="label">
+        <span class="label-text">Date:</span>
+        </label>
+        <input class="input input-bordered w-full max-w-xs m-2" type="date" v-model= "date">
+        </div>
+        <div class="form-control w-full max-w-xs">
+        <label class="label">
+        <span class="label-text">Start Time:</span>
+        </label>
+        <input type="time" class="input input-bordered w-full max-w-xs m-2" v-model="starttime">
+        </div>
+        <div class="form-control w-full max-w-xs">
+        <label class="label">
+        <span class="label-text">End Time:</span>
+        </label>
+        <input type="time" class="input input-bordered w-full max-w-xs m-2" v-model="endtime">
+        </div>
+        <a class="btn btn-primary m-2" @click="editDate()">Confirm Changes</a>
+        </form>
+        </dialog>
+
     </div>
 </template>
 
@@ -115,6 +140,14 @@ onBeforeMount(async () => {
 })
 
 const isEmpty = computed(() => adjusted_availability.value.length === 0);
+
+const openEditDayModal = (day) => {
+    date.value = day.adjusteddate;
+    starttime.value = day.starttime;
+    endtime.value = day.endtime;
+    editDayModal.showModal();
+
+};
 
 const getAdjustedDays = async () => {
 
@@ -184,6 +217,49 @@ const removeDate = async (dateToRemove, index) => {
 
 };
 
+const editDate = async () => {
+
+try {
+
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/adjust-day`, 
+    {
+    method: "PUT",
+    headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrf_token.value
+
+    },
+    credentials: "include",
+    body: JSON.stringify({
+        date: date.value,
+        starttime: starttime.value,
+        endtime: endtime.value
+    })
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+        successMessage.value = true;
+        errorMessage.value = false;
+        serverMessage.value = data.message;
+        date.value = null;
+        starttime.value = null;
+        endtime.value = null;
+        await getAdjustedDays();
+    }
+    else if (response.status === 409) {
+      successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = data.message;
+    }
+    
+} catch (error) {
+    console.log(error);
+}
+
+};
+
 const addDate = async () => {
 
 try {
@@ -210,6 +286,9 @@ try {
         successMessage.value = true;
         errorMessage.value = false;
         serverMessage.value = data.message;
+        date.value = null;
+        starttime.value = null;
+        endtime.value = null;
         await getAdjustedDays();
     }
     else if (response.status === 409) {
