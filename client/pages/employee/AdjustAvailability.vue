@@ -95,7 +95,9 @@
         <label class="label">
         <span class="label-text">Date:</span>
         </label>
-        <input class="input input-bordered w-full max-w-xs m-2" type="date" v-model= "date">
+        <p class="input input-bordered w-full max-w-xs m-2  flex items-center">
+            {{ new Date(date).toLocaleDateString() }}
+        </p>
         </div>
         <div class="form-control w-full max-w-xs">
         <label class="label">
@@ -221,6 +223,13 @@ const removeDate = async (dateToRemove, index) => {
 
 const editDate = async () => {
 
+    if (!checktimes(starttime.value, endtime.value)) {
+        successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = "End time needs to be greater than start time";
+        editDayModal.close();
+        return;
+    }
 try {
 
     const response = await fetch(`${config.public.API_BASE_URL}/employee/adjust-day`, 
@@ -256,6 +265,8 @@ try {
         errorMessage.value = true;
         serverMessage.value = data.message;
     }
+
+    editDayModal.close();
     
 } catch (error) {
     console.log(error);
@@ -289,7 +300,7 @@ try {
         successMessage.value = true;
         errorMessage.value = false;
         serverMessage.value = data.message;
-        date.value = null;
+        date.value = new Date().toISOString().slice(0,10);
         starttime.value = null;
         endtime.value = null;
         await getAdjustedDays();

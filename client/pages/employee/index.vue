@@ -1,47 +1,153 @@
 <template>
+  
     <div>
 
-        <h1>Employee dashboard</h1>
+        <h1>Manage Bookings</h1>
 
-<!-- <label for="my_modal_6" class="btn">open modal</label>
+        <dialog id="editBookingDetails" class="modal modal-bottom sm:modal-middle">
+        <form method="dialog" class="modal-box">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+          <EditBookingForm v-if="selectedID" :id="selectedID" :csrfToken="csrf_token" />
+        </form>
+        </dialog>
 
-<input type="checkbox" id="my_modal_6" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box">
-    <h3 class="font-bold text-lg">Hello!</h3>
-    <p class="py-4">This modal works with a hidden checkbox!</p>
-    <div class="modal-action">
-      <label for="my_modal_6" class="btn">Close!</label>
-    </div>
-  </div>
-</div> -->
+        <div v-if="isMobile" class="w-full h-full">
+          <FullCalendar :options="mobileCalendarOptions" :events="events"/>
+        </div>
+        <div v-else class="flex items-center justify-center">
 
-<!-- Open the modal using ID.showModal() method -->
-<button class="btn" onclick="my_modal_2.showModal()">open modal</button>
-<dialog id="my_modal_2" class="modal">
-  <form method="dialog" class="modal-box">
-    <h3 class="font-bold text-lg">Hello!</h3>
-    <p class="py-4">Press ESC key or click outside to close</p>
-  </form>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+          <div class="w-3/4">
+            <FullCalendar :options="calendarOptions" :events="events"/>
+          </div>
+        </div>
 
+
+        
     </div>
 </template>
 
 <script setup>
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import EditBookingForm from '~/components/EditBookingForm.vue';
+
+const config = useRuntimeConfig();
 
 definePageMeta({
     middleware: "auth",
     layout: "employee-layout"
 });
 
+const mobileCalendarOptions = ref({
+  plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
+    initialView: 'timeGridDay',
+      firstDay: 1,
+      slotMinTime: '07:00',
+      slotMaxTime: '21:00',
+      slotDuration: '00:15',
+      nowIndicator: true,
+      headerToolbar: {
+        left: 'prev,next today',
+        right: 'title',
+      },
+      events: [
+        ],
+      eventTimeFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        meridiem: 'short'
+      },
+      //redirects the page to show the details of the appointment you have selected
+      eventClick: function(info) {
+        selectedID.value = info.event.id;
+        editBookingDetails.showModal();
+      }
+});
+
+
+const calendarOptions = ref({
+    plugins: [ dayGridPlugin, interactionPlugin, timeGridPlugin ],
+    initialView: 'timeGridWeek',
+      firstDay: 1,
+      slotMinTime: '07:00',
+      slotMaxTime: '21:00',
+      slotDuration: '00:15',
+      nowIndicator: true,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      events: [
+        ],
+      eventTimeFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        meridiem: 'short'
+      },
+      //redirects the page to show the details of the appointment you have selected
+      eventClick: function(info) {
+
+        selectedID.value = info.event.id;
+
+        editBookingDetails.showModal();
+
+        // navigateTo(`/employee/manageBookings/${info.event.id}`);
+      }
+});
+
+const appointments = ref(null);
+const events = ref([]);
+const selectedID = ref(null);
+const csrf_token = ref(null);
+
+const { isMobile } = useDevice();
+
+const getAppointments = async () => {
+
+    const response = await fetch(`${config.public.API_BASE_URL}/employee/appointments`, {
+    credentials: "include",
+    });
+
+    const data = await response.json();
+
+    if (response.status === 200) {
+
+        console.log(data.appointments);
+        appointments.value = data.appointments;
+    };
+
+    for (let i = 0; i < data.appointments.length; i++) {
+
+        const newEvent = {
+        id: data.appointments[i].id,
+        title: `${data.appointments[i].firstname} ${data.appointments[i].surname}`,
+        start: `${data.appointments[i].appdate}T${data.appointments[i].starttime}`,
+        end: `${data.appointments[i].appdate}T${data.appointments[i].endtime}`
+        };
+
+        console.log(isMobile);
+
+        if (isMobile) {
+          mobileCalendarOptions.value.events.push(newEvent);
+        }
+        else {
+          calendarOptions.value.events.push(newEvent);
+        }
+
+    };
+
+}
+
+onMounted(async () => {
+    await getAppointments();
+    csrf_token.value = await getCSRFToken();
+});
+
 
 </script>
-
-
 
 <style lang="scss" scoped>
 

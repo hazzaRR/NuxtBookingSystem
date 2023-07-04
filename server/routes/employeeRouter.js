@@ -412,7 +412,6 @@ router.get('/adjust-day', authenticateEmployee, async(req, res) => {
         return res.json({message: "Adjusted availability dates sucessfully fetched", adjusted_availability: adjusted_availability.rows});
         
     } catch (error) {
-        console.log(error)
         return res.json({message: "Error fetching data from database"});
     }
 
@@ -426,13 +425,26 @@ router.post('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, 
         const user = req.user;
         const { date, starttime, endtime } = req.body;
 
+        const already_exists = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeid = $1 and blockedDate = $2", [user.id, date]);
+
+        if (already_exists.rowCount > 0) {
+            return res.status(409).json({message: "Date selected has already been blocked from your availability"})
+        }
+
         const adjusted_availability = await pool.query("INSERT INTO employee_one_off_availability (employeeid, AdjustedDate, starttime, endtime) VALUES ($1, $2, $3, $4)", [user.id, date, starttime, endtime]);
 
         return res.json({message: "Date successfully adjusted for employee's availability"});
         
     } catch (error) {
-        console.log(error)
-        return res.json({message: "Error fetching data from database"});
+        console.log(error);
+
+        if (error.code === '23505') {
+            return res.status(409).json({message: "Date selected has already been adjusted, please edit the date using the table"})
+
+        }
+        else {
+            return res.json({message: "Error fetching data from database"});
+        }
     }
 
 
@@ -443,9 +455,9 @@ router.put('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, r
     try {
 
         const user = req.user;
-        const { date, starttime, endtime } = req.body;
+        const { date, starttime, endtime, id } = req.body;
 
-        const adjusted_availability = await pool.query("UPDATE employee_one_off_availability SET AdjustedDate = $1, starttime = $2, endtime = $3) WHERE id = $4", [date, starttime, endtime, id]);
+        const adjusted_availability = await pool.query("UPDATE employee_one_off_availability SET AdjustedDate = $1, starttime = $2, endtime = $3 WHERE id = $4", [date, starttime, endtime, id]);
 
         return res.json({message: "Date successfully adjusted for employee's availability"});
         
