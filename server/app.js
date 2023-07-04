@@ -338,29 +338,35 @@ app.get("/available-slots", async (req, res) => {
 
         const dateToFind = new Date(date);
 
-        console.log(duration, typeof duration)
-
         const checkIfBlocked = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeID = $1 AND blockedDate = $2", [id, dateToFind]);
 
         if (checkIfBlocked.rowCount > 0) {
             return res.status(204).json({message: "No availability for that day", availability: []});
         }
 
-        const getAvailability = await pool.query('SELECT StartTime, EndTime, available FROM employee_availability WHERE EmployeeID = $1 AND DayOfWeek = $2', [id, weekday[dateToFind.getDay()]]);
+        let getAvailability; 
+
+        getAvailability = await pool.query('SELECT StartTime, EndTime FROM employee_one_off_availability WHERE EmployeeID = $1 AND AdjustedDate = $2', [id, date]);
+
+        if (getAvailability.rowCount === 0) {
+            getAvailability = await pool.query('SELECT StartTime, EndTime, available FROM employee_availability WHERE EmployeeID = $1 AND DayOfWeek = $2', [id, weekday[dateToFind.getDay()]]);
+
+            
+            if (!getAvailability.rows[0].available) {
+                return res.status(204).json({message: "No availability for that day", availability: []});
+            }
+        };
+
 
         const availabilityRows = getAvailability.rows;
 
         console.log(availabilityRows);
 
-        if (!getAvailability.rows[0].available) {
-            return res.status(204).json({message: "No availability for that day", availability: []});
-        }
-
         const appointmentQuery = await pool.query('SELECT StartTime, EndTime FROM appointment WHERE employeeID = $1 AND appDate = $2', [id, dateToFind]);
 
         const appointmentsRows = appointmentQuery.rows;
 
-        console.log(appointmentsRows);
+        // console.log(appointmentsRows);
 
         // Generate the available time slots with 15-minute intervals
         const availableTimeSlots = [];
@@ -403,6 +409,8 @@ app.get("/available-slots", async (req, res) => {
             currentSlotTime.setMinutes(currentSlotTime.getMinutes() + 15);
             }
         }
+
+        console.log(availableTimeSlots);
 
         return res.json({message:"Slots fetched successfully", availability: availableTimeSlots});
         

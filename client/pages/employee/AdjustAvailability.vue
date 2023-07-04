@@ -276,6 +276,13 @@ try {
 
 const addDate = async () => {
 
+    if (!checktimes(starttime.value, endtime.value)) {
+        successMessage.value = false;
+        errorMessage.value = true;
+        serverMessage.value = "End time needs to be greater than start time";
+        addAdjusted.close();
+        return;
+    }
 try {
 
     const response = await fetch(`${config.public.API_BASE_URL}/employee/adjust-day`, 
