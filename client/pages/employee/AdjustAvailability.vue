@@ -130,6 +130,7 @@ const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
 const csrf_token = ref(null);
+const id = ref(null);
 const date = ref(new Date().toISOString().slice(0,10))
 const starttime = ref(null)
 const endtime = ref(null)
@@ -142,6 +143,7 @@ onBeforeMount(async () => {
 const isEmpty = computed(() => adjusted_availability.value.length === 0);
 
 const openEditDayModal = (day) => {
+    id.value = day.id;
     date.value = day.adjusteddate;
     starttime.value = day.starttime;
     endtime.value = day.endtime;
@@ -231,6 +233,7 @@ try {
     },
     credentials: "include",
     body: JSON.stringify({
+        id: id.value,
         date: date.value,
         starttime: starttime.value,
         endtime: endtime.value

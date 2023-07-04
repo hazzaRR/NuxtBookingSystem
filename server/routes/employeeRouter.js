@@ -438,6 +438,25 @@ router.post('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, 
 
 });
 
+router.put('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
+
+    try {
+
+        const user = req.user;
+        const { date, starttime, endtime } = req.body;
+
+        const adjusted_availability = await pool.query("UPDATE employee_one_off_availability SET AdjustedDate = $1, starttime = $2, endtime = $3) WHERE id = $4", [date, starttime, endtime, id]);
+
+        return res.json({message: "Date successfully adjusted for employee's availability"});
+        
+    } catch (error) {
+        console.log(error)
+        return res.json({message: "Error fetching data from database"});
+    }
+
+
+});
+
 router.delete('/adjust-day', authenticateEmployee, validate_csrfToken, async(req, res) => {
 
     try {
