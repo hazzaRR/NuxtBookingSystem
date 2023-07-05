@@ -1,7 +1,7 @@
 <template>
     <div>
 
-    <div v-if="!availableEmployees">No Employees currently available on that day</div>
+    <div class="max-w-sm mx-auto my-6" v-if="isEmpty">No Employees currently available on the {{ new Date(props.selectedDate).toLocaleDateString() }}</div>
     <div v-else>
         <div
             v-for="(employee, index) in availableEmployees"
@@ -22,14 +22,14 @@ const emits = defineEmits(['update:selectedEmployeeID', 'update:employeeName']);
 const props = defineProps(['selectedDate', 'selectedEmployeeID'])
 const config = useRuntimeConfig();
 
-const availableEmployees = ref(null);
+const availableEmployees = ref([]);
 const selectedEmployeeID = ref(props.selectedEmployeeID);
+
+const isEmpty = computed(() => availableEmployees.value.length === 0);
 
 const getEmployees = async () => {
 
 try {
-
-    console.log(props.selectedDate);
 
     const response = await fetch(`${config.public.API_BASE_URL}/available-employees?date=${props.selectedDate}`, {
     credentials: "include",

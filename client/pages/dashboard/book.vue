@@ -16,7 +16,7 @@
       </svg>
     </button>
     
-    <ul class="steps steps-horizontal mx-auto flex-auto items-center">
+    <ul class="steps steps-horizontal mx-auto lg:flex-auto items-center">
       <li :class="['step', {'step-primary': stage >= 1}]">Service</li>
       <li :class="['step', {'step-primary': stage >= 2}]">Date</li>
       <li :class="['step', {'step-primary': stage >= 3}]">Employee</li>
@@ -29,9 +29,8 @@
         </div>
 
         <div v-else-if="stage === 2">
-          <label>Date:</label>
           <div class="flex items-center">
-            <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs mx-auto mb-6"/>
+            <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs mx-auto my-6"/>
           </div>
         </div>
         

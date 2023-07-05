@@ -299,7 +299,11 @@ app.get("/available-employees", async (req, res) => {
 
         const dateToFind = new Date(date);
 
-        const getEmployees = await pool.query("SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee INNER JOIN employee_availability ON employee_availability.employeeid = employee.id WHERE employee_availability.DayOfWeek = $1 AND employee_availability.available = $2", [weekday[dateToFind.getDay()], true]);
+        const getEmployees = await pool.query(`SELECT DISTINCT employee.id, employee.firstname, employee.surname FROM employee
+         INNER JOIN employee_availability ON employee_availability.employeeid = employee.id
+          LEFT JOIN employee_blocked_days ON employee_blocked_days.employeeid = employee.id AND employee_blocked_days.blockedDate = $1
+           WHERE employee_availability.DayOfWeek = $2 AND employee_availability.available = $3
+           AND employee_blocked_days.employeeid IS NULL`, [dateToFind, weekday[dateToFind.getDay()], true]);
 
         console.log(getEmployees.rows)
         return res.json({message:"Employees Successfully fetched", employees: getEmployees.rows})
