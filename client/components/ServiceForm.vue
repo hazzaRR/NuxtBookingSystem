@@ -6,7 +6,7 @@
     <div
       v-for="(service, index) in availableServices"
       :key="index"
-      @click="selectService(service.id, service.duration_minutes)"
+      @click="selectService(service.id, service.duration_minutes, service.servicename)"
       :class="['border', 'hover:bg-gray-100', isSelected(service.id) ? 'border-blue-500' : 'border-blue-100', isSelected(service.id) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'my-4']">
       <p>{{ service.servicename }}</p>
       <p>{{ `£${service.price}` }}</p>
@@ -20,7 +20,7 @@
 </template>
 
 <script setup>
-const emits = defineEmits(['update:selectedServiceID', 'update:serviceDuration']);
+const emits = defineEmits(['update:selectedServiceID', 'update:serviceDuration', 'update:serviceName']);
 const props = defineProps(['selectedServiceID']);
 const config = useRuntimeConfig();
 
@@ -53,10 +53,11 @@ onBeforeMount(() => {
     getServices();
 })
 
-const selectService = (serviceID, serviceDuration) => {
+const selectService = (serviceID, serviceDuration, serviceName) => {
     selectedServiceID.value = serviceID;
     emits('update:selectedServiceID', serviceID);
     emits('update:serviceDuration', serviceDuration);
+    emits('update:serviceName', serviceName);
 };
 
 const isSelected = (serviceID) => {

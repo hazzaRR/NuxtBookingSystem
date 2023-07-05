@@ -1,7 +1,7 @@
 <template>
     <div>
 
-        <form class="grid place-items-center ">
+        <form class="grid place-items-center">
         <div class="relative mb-6">
             <input type="password" placeholder="current password" class="input input-bordered w-full max-w-xs" v-model="password"  required/>
         </div>

@@ -3,25 +3,29 @@
 
     <div class="w-10/12 border rounded-md mx-auto border-blue-100">
 
-      <ul class="steps steps-horizontal">
-        <li :class="['step', {'step-primary': stage >= 1}]">Service</li>
-        <li :class="['step', {'step-primary': stage >= 2}]">Date</li>
-        <li :class="['step', {'step-primary': stage >= 3}]">Barber</li>
-        <li :class="['step', {'step-primary': stage >= 4}]">Time</li>
-      </ul>
-        
-        
-    <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-    </svg>
+
+      <p>{{ selectedSlot }}</p>
+
+      
+      
+      <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+      </svg>
     </button>
     <button class="btn mx-1 my-4 btn-accent" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
       <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
     </svg>
-    </button>
-        
+      </button>
+  
+    <ul class="steps steps-horizontal mx-auto">
+      <li :class="['step', {'step-primary': stage >= 1}]">Service</li>
+      <li :class="['step', {'step-primary': stage >= 2}]">Date</li>
+      <li :class="['step', {'step-primary': stage >= 3}]">Barber</li>
+      <li :class="['step', {'step-primary': stage >= 4}]">Time</li>
+      <li :class="['step', {'step-primary': stage >= 5}]">Review</li>
+    </ul>
         <div v-if="stage === 1">
-            <ServiceForm @update:selectedServiceID="selectedServiceID = $event" @update:serviceDuration="duration = $event" :selectedServiceID='selectedServiceID'/>
+            <ServiceForm @update:selectedServiceID="selectedServiceID = $event" @update:serviceDuration="duration = $event" @update:serviceName="serviceName = $event" :selectedServiceID='selectedServiceID'/>
         </div>
 
         <div v-else-if="stage === 2">
@@ -32,11 +36,15 @@
         </div>
         
         <div v-else-if="stage === 3">
-          <EmployeeSelector :selectedDate="selectedDate" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
+          <EmployeeSelector :selectedDate="selectedDate" @update:employeeName="employeeName = $event" @update:selectedEmployeeID="selectedEmployeeID = $event" :selectedEmployeeID="selectedEmployeeID"/>
         </div>
         
         <div v-else-if="stage === 4">
-          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :selectedServiceID="selectedServiceID" :duration="duration" @update:bookingstatus="bookingStatus = $event" @update:serverMessage="serverMessage = $event"/>
+          <SlotSelector :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :duration="duration" :selectedSlot="selectedSlot" @update:selectedSlot="selectedSlot = $event"/>
+        </div>
+
+        <div v-else-if="stage === 5">
+          <ReviewBooking :selectedDate="selectedDate" :selectedEmployeeID="selectedEmployeeID" :employeeName="employeeName" :selectedServiceID="selectedServiceID" :serviceName="serviceName" :duration="duration" :selectedSlot="selectedSlot" @update:bookingstatus="bookingStatus = $event" @update:serverMessage="serverMessage = $event"/>
         </div>
         
       </div>
@@ -74,8 +82,10 @@ definePageMeta({
 const stage = ref(1);
 const selectedServiceID = ref(null);
 const duration = ref(null);
+const serviceName = ref(null);
 const selectedDate = ref(new Date().toISOString().slice(0,10));
 const selectedEmployeeID = ref(null);
+const employeeName = ref(null);
 const selectedSlot = ref(null);
 const bookingStatus = ref(null);
 const serverMessage = ref(null);

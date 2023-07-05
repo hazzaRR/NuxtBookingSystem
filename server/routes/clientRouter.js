@@ -261,10 +261,10 @@ router.post("/book-slot", authenticateClient, validate_csrfToken, async (req, re
         console.log(serviceID)
         console.log(slot)
 
-        const slotEndTime = new Date(`${date} ${slot.startTime}`);
+        const slotEndTime = new Date(`${date} ${slot}`);
         slotEndTime.setMinutes(slotEndTime.getMinutes() + parseInt(duration));
 
-        const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot.startTime, slotEndTime.toLocaleTimeString(), employeeID, serviceID, user.id]);
+        const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot, slotEndTime.toLocaleTimeString(), employeeID, serviceID, user.id]);
         return res.json({message:"Booking Confirmed", booking: bookSlot.rows[0]})
         
     } catch (error) {

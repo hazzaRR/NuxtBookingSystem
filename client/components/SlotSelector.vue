@@ -1,19 +1,20 @@
 <template>
     <div>
 
+        <p>{{ selectedSlot }}</p>
+
     <div v-if="!availableSlots">No Slots currently available on that day</div>
     <div v-else>
-        <div
+        <div class="grid grid-rows-5 gap-4">
+
+            <div
             v-for="(slot, index) in availableSlots"
             :key="index"
             @click="selectSlot(slot)"
-            :class="['border', 'hover:bg-gray-100', isSelected(slot) ? 'border-blue-500' : 'border-blue-100', isSelected(slot) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-full', 'mx-auto', 'm-2', 'text-center']">
+            :class="['border', 'hover:bg-gray-100', isSelected(slot) ? 'border-blue-500' : 'border-blue-100', isSelected(slot) ? 'bg-gray-200' : 'bg-white', 'shadow', 'rounded-md', 'p-4', 'max-w-sm', 'w-5/6', 'mx-auto', 'm-2', 'text-center']">
             <p>{{ `${slot.startTime.slice(0,5)}` }}</p>
         </div>
-
-
-        <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary" :disabled="!selectedSlot" @click="BookSlot">Book</button>
-
+        </div>
     </div>
 
 </div>
@@ -21,12 +22,12 @@
 
 <script setup>
 
-const emits = defineEmits(['update:bookingstatus', 'update:serverMessage']);
-const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID', 'duration'])
+const emits = defineEmits(['update:selectedSlot', 'update:selectedEmployeeID', 'update:bookingstatus', 'update:serverMessage']);
+const props = defineProps(['selectedDate', 'selectedEmployeeID', 'selectedServiceID', 'duration', 'selectedSlot'])
 const config = useRuntimeConfig();
 
 const availableSlots = ref(null);
-const selectedSlot = ref(null);
+const selectedSlot = ref(props.selectedSlot);
 const csrf_token = ref(null);
 
 const getSlot = async () => {
@@ -39,7 +40,6 @@ try {
     const data = await response.json();
 
     if (response.status === 200) {
-        console.log(data.availability);
         availableSlots.value = data.availability;
     };
     
@@ -54,39 +54,12 @@ onBeforeMount(async () => {
 })
 
 const selectSlot = (slot) => {
-    selectedSlot.value = slot;
-    // emits('update:selectedSlot', slot);
+    selectedSlot.value = slot.startTime;
+    emits('update:selectedSlot', slot.startTime);
 };
 
 const isSelected = (slot) => {
-      return selectedSlot.value === slot;
-};
-
-const BookSlot = async () => {
-
-    const response = await fetch(`${config.public.API_BASE_URL}/client/book-slot`, 
-    {
-        method: "POST",
-        headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrf_token.value
-        },
-        credentials: "include",
-        body: JSON.stringify({
-            date: props.selectedDate,
-            employeeID: props.selectedEmployeeID,
-            serviceID: props.selectedServiceID,
-            slot: selectedSlot.value,
-            duration: props.duration
-        })
-    });
-
-    const data = await response.json();
-
-        if (response.status === 200) {
-            emits('update:bookingstatus', 'Booking Confirmation');
-            emits('update:serverMessage', `Your booking has been successfully confirmed for the ${data.booking.starttime.slice(0,5)} on the ${new Date(data.booking.appdate).toLocaleDateString()}`);
-        }
+      return selectedSlot.value === slot.startTime;
 };
 
 </script>
