@@ -6,9 +6,9 @@
       <h2 class="input input-bordered w-full max-w-xs m-2 flex items-center">Service: {{ props.serviceName }}</h2>
       <h2 class="input input-bordered w-full max-w-xs m-2 flex items-center">Duration: {{ props.duration }} minutes</h2>
       <h2 class="input input-bordered w-full max-w-xs m-2 flex items-center">Time: {{ props.selectedSlot.slice(0, 5) }}</h2>
+      <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary my-4" :disabled="!props.selectedSlot" @click="BookSlot">Book</button>
     </div>
 
-    <button class="btn btn-xs sm:btn-sm md:btn-md lg:btn-lg btn-primary" :disabled="!props.selectedSlot" @click="BookSlot">Book</button>
 </div>
 </template>
 

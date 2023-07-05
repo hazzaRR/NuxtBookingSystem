@@ -7,6 +7,7 @@ const crykey = CryptoJS.enc.Hex.parse("000102030405060708090a0b0c0d0e0f");
 const iv = CryptoJS.enc.Hex.parse("101112131415161718191a1b1c1d1e1f");
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const nodemailer = require('nodemailer');
 const port = process.env.PORT || 5001;
 require('dotenv').config();
 
@@ -15,6 +16,14 @@ const router = express.Router();
 
 router.use(cookieParser());
 router.use(express.json());
+
+const transporter = nodemailer.createTransport({
+    service: process.env.MAIL_SERVICE,
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.EMAIL_PASSWORD
+    }
+  });
 
 const authenticateClient = async (req, res, next) => {
 
@@ -265,6 +274,38 @@ router.post("/book-slot", authenticateClient, validate_csrfToken, async (req, re
         slotEndTime.setMinutes(slotEndTime.getMinutes() + parseInt(duration));
 
         const bookSlot = await pool.query("INSERT INTO appointment (appDate, starttime, endtime, employeeID, serviceID, clientID) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *", [date, slot, slotEndTime.toLocaleTimeString(), employeeID, serviceID, user.id]);
+
+        let decryptedEmail = CryptoJS.AES.decrypt(user.email, crykey,{ iv: iv });
+
+
+        // const bookingDetails = await pool.query("SELECT employee.firstname, employee.surname, service.servicename, appointment.starttime FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN service ON appointment.serviceid = service.id WHERE appointment.id = $1", [bookSlot.rows[0].id])
+
+
+        // const mailOptions = {
+        //     from: process.env.EMAIL,
+        //     to: decryptedEmail.toString(CryptoJS.enc.Utf8),
+        //     subject: `Booking Confirmation: ${bookingDetails.rows[0].servicename} - ${new Date(date).toLocaleDateString()} - ${slot.slice(0,5)}`,
+        //     text: `Hi ${user.firstname} ${user.surname},
+
+        //     Thanks for booking with us!
+        //     We're just sending an email to confirm your ${bookingDetails.rows[0].servicename} appointment with ${bookingDetails.rows[0].firstname} ${bookingDetails.rows[0].surname} 
+        //     on ${new Date(date).toLocaleDateString()} at ${slot.slice(0,5)}.
+            
+        //     No shows and cancellations with less than than 24hours notice will incur a fee of 50% of the service. To cancel your booking, visit ${process.env.URL}/cancel, or you can call us on ${process.env.NUMBER}.
+            
+        //     Thanks,
+        //     LB Massages`
+        //   };
+          
+        //   transporter.sendMail(mailOptions, function(error, info){
+        //     if (error) {
+        //       console.log(error);
+        //     } else {
+        //       console.log('Email sent: ' + info.response);
+        //     }
+
+        //   });
+
         return res.json({message:"Booking Confirmed", booking: bookSlot.rows[0]})
         
     } catch (error) {

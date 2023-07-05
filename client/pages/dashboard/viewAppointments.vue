@@ -12,6 +12,11 @@
         <span>{{serverMessage}}</span>
         </div>
 
+        <div class="join">
+            <input class="join-item btn" type="radio" name="options" aria-label="Upcoming" />
+            <input class="join-item btn" type="radio" name="options" aria-label="Previous" />
+        </div>
+
         <div class="overflow-x-auto p-10">
             <table class="table">
                 <thead>

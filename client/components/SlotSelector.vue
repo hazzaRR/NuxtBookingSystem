@@ -1,11 +1,8 @@
 <template>
     <div>
-
-        <p>{{ selectedSlot }}</p>
-
     <div v-if="!availableSlots">No Slots currently available on that day</div>
     <div v-else>
-        <div class="grid grid-rows-5 gap-4">
+        <div class="grid grid-rows-6 grid-flow-col gap-4">
 
             <div
             v-for="(slot, index) in availableSlots"

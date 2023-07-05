@@ -4,34 +4,34 @@
     <div class="w-10/12 border rounded-md mx-auto border-blue-100">
 
 
-      <p>{{ selectedSlot }}</p>
+      <div class="w-full flex border rounded-md border-blue-100">
 
-      
-      
-      <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+        
+        <button class="btn mx-1 my-4 btn-accent" :disabled="stage === 1" @click="prevStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+        </svg>
+      </button>
+      <button class="btn mx-1 my-4 btn-accent" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
       </svg>
     </button>
-    <button class="btn mx-1 my-4 btn-accent" :disabled="!isStageCompleted" @click="nextStage"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-    </svg>
-      </button>
-  
-    <ul class="steps steps-horizontal mx-auto">
+    
+    <ul class="steps steps-horizontal mx-auto flex-auto items-center">
       <li :class="['step', {'step-primary': stage >= 1}]">Service</li>
       <li :class="['step', {'step-primary': stage >= 2}]">Date</li>
-      <li :class="['step', {'step-primary': stage >= 3}]">Barber</li>
+      <li :class="['step', {'step-primary': stage >= 3}]">Employee</li>
       <li :class="['step', {'step-primary': stage >= 4}]">Time</li>
       <li :class="['step', {'step-primary': stage >= 5}]">Review</li>
     </ul>
+    </div>
         <div v-if="stage === 1">
             <ServiceForm @update:selectedServiceID="selectedServiceID = $event" @update:serviceDuration="duration = $event" @update:serviceName="serviceName = $event" :selectedServiceID='selectedServiceID'/>
         </div>
 
         <div v-else-if="stage === 2">
           <label>Date:</label>
-          <div class="mx-auto">
-            <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs"/>
+          <div class="flex items-center">
+            <input type="date" v-model="selectedDate" :min="new Date().toISOString().slice(0,10)" class="input input-bordered w-full max-w-xs mx-auto mb-6"/>
           </div>
         </div>
         
