@@ -3,7 +3,8 @@ require('dotenv').config();
 
 let databaseName;
 if (process.env.DATABASE === "test") {
-    databaseName = "nuxt_booking_test"
+    // databaseName = "nuxt_booking_test"
+    databaseName = "nuxt_booking"
 }
 else {
     databaseName = "nuxt_booking"

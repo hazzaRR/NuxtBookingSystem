@@ -131,7 +131,7 @@ app.post("/register", async (req, res) => {
         const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, info.rows[0].id, "client", crsf_token])
 
         res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
-        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
+        res.json({ message: 'Registration successful', user_type: createSession.rows[0].user_type });
 
     } catch (err) {
         console.error(err.message);
