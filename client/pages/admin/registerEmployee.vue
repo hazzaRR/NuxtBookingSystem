@@ -27,6 +27,8 @@
 </template>
 
 <script setup>
+import { checkPassword } from '~/composables/checkPassword';
+
 const config = useRuntimeConfig();
 
 definePageMeta({
@@ -49,6 +51,12 @@ onMounted(async () => {
 });
 
 const register = async () => {
+
+
+    if (!checkPassword(password.value)) {
+        console.log("passwords doesn't meet requirements");
+        return;
+    }
 
     try {
 

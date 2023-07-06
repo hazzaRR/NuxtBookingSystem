@@ -20,6 +20,8 @@
 </template>
 
 <script setup>
+import { checkPassword } from '~/composables/checkPassword';
+
 const config = useRuntimeConfig();
 
 const props = defineProps(['route', 'csrfToken']);
@@ -37,6 +39,11 @@ const UpdatePassword = async (event) => {
 
     if (newPassword.value !== reEnteredNewPassword.value) {
         console.log("passwords must match")
+        return;
+    }
+
+    if (!checkPassword(newPassword.value)) {
+        console.log("password doesn't meet password requirements");
         return;
     }
 

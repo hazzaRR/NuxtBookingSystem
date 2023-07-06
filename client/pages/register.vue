@@ -65,6 +65,8 @@
 </template>
 
 <script setup>
+import { checkPassword } from '~/composables/checkPassword';
+
 
 const config = useRuntimeConfig();
 
@@ -93,6 +95,11 @@ const register = async (event) => {
     console.log(surname.value);
     console.log(telephone.value);
     console.log(password.value);
+
+    if (!checkPassword(password.value)) {
+        console.log("password doesn't meet requirements");
+        return;
+    }
 
 
     const response = await fetch(`${config.public.API_BASE_URL}/register`, 
