@@ -1,8 +1,5 @@
 <template>
     <div>
-
-        <h1>View your upcoming appointments</h1>
-
         <div v-if="successMessage" class="alert alert-success max-w-sm">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         <span>{{serverMessage}}</span>
@@ -12,9 +9,9 @@
         <span>{{serverMessage}}</span>
         </div>
 
-        <div class="join">
-            <input class="join-item btn" type="radio" name="options" aria-label="Upcoming" />
-            <input class="join-item btn" type="radio" name="options" aria-label="Previous" />
+        <div class="join flex items-center justify-center mx-auto">
+            <input class="join-item btn" type="radio" name="options" aria-label="Upcoming" v-model="showPrevious" :value="false"/>
+            <input class="join-item btn" type="radio" name="options" aria-label="Previous" v-model="showPrevious" :value="true"/>
         </div>
 
         <div class="overflow-x-auto p-10">
@@ -27,7 +24,7 @@
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Cost</th>
-                    <th></th>
+                    <th v-if="!showPrevious"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,14 +47,12 @@
                     <td>
                     {{`£${appointment.price}`}}
                     </td>
-                    <td>
+                    <td v-if="!showPrevious">
                     <button class="btn btn-warning" @click="cancelBooking(appointment.id, index)">Cancel</button>
                     </td>
                     </tr>
                 </tbody>
             </table>
-
-
 
         </div>
     </div>
@@ -76,9 +71,24 @@ const appointments = ref([]);
 const successMessage = ref(false);
 const errorMessage = ref(false);
 const serverMessage = ref('');
+const showPrevious = ref(false)
 
-const getAppointments = async () => {
-    const response = await fetch(`${config.public.API_BASE_URL}/client/appointments`, {
+const getUpcomingAppointments = async () => {
+    const response = await fetch(`${config.public.API_BASE_URL}/client/upcoming-appointments`, {
+    credentials: "include",
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    if (response.status === 200) {
+        appointments.value = data.appointments;
+    }
+
+};
+
+const getPreviousAppointments = async () => {
+    const response = await fetch(`${config.public.API_BASE_URL}/client/previous-appointments`, {
     credentials: "include",
     });
 
@@ -92,8 +102,19 @@ const getAppointments = async () => {
 };
 
 onMounted(() => {
-    getAppointments();
+    getUpcomingAppointments();
 });
+
+watch(showPrevious, async () => {
+
+    if (!showPrevious) {
+        await getUpcomingAppointments();
+    }
+    else {
+        await getPreviousAppointments();
+    }
+    console.log(showPrevious.value)
+}, { immediate: true })
 
 
 const cancelBooking = async (appointmentId, index) => {
@@ -116,7 +137,7 @@ const cancelBooking = async (appointmentId, index) => {
             errorMessage.value = false;
             serverMessage.value = data.message;
 
-            getAppointments();
+            getUpcomingAppointments();
         }
         
     } catch (error) {

@@ -50,7 +50,7 @@ const BookSlot = async () => {
 
         if (response.status === 200) {
             emits('update:bookingstatus', 'Booking Confirmation');
-            emits('update:serverMessage', `Your booking has been successfully confirmed for the ${data.booking.starttime.slice(0,5)} on the ${new Date(data.booking.appdate).toLocaleDateString()}`);
+            emits('update:serverMessage', `Your booking has been successfully confirmed for ${data.booking.starttime.slice(0,5)} on the ${new Date(data.booking.appdate).toLocaleDateString()}`);
         }
 };
 

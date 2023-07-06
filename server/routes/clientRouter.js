@@ -212,13 +212,34 @@ router.put('/update-email', authenticateClient, reauthenticateClient, validate_c
     }
 });
 
-router.get('/appointments', authenticateClient, async (req, res) => {
+router.get('/upcoming-appointments', authenticateClient, async (req, res) => {
 
     try {
 
         const user = req.user;
 
         const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), starttime, endtime, employee.firstname, employee.surname, service.servicename, service.price FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN client ON appointment.clientid = client.id INNER JOIN service ON appointment.serviceid = service.id WHERE client.id = $1 and appdate >= $2", [user.id, new Date()]);
+
+        console.log(appointments.rows)
+
+        res.json({message: "appointments succssfully fetched", appointments: appointments.rows})
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Error fetching from server"});
+    }
+
+
+
+});
+
+router.get('/previous-appointments', authenticateClient, async (req, res) => {
+
+    try {
+
+        const user = req.user;
+
+        const appointments = await pool.query("SELECT appointment.id, CAST(appointment.appDate AS TEXT), starttime, endtime, employee.firstname, employee.surname, service.servicename, service.price FROM appointment INNER JOIN employee ON appointment.employeeid = employee.id INNER JOIN client ON appointment.clientid = client.id INNER JOIN service ON appointment.serviceid = service.id WHERE client.id = $1 and appdate < $2", [user.id, new Date()]);
 
         console.log(appointments.rows)
 
