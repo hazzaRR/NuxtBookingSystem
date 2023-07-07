@@ -112,6 +112,7 @@ app.post("/register", async (req, res) => {
         // Searches into database based on username and email and returns status code if existing user already exists
         const existingUser = await pool.query("SELECT * FROM client WHERE email = $1 UNION SELECT * FROM employee WHERE email = $1", [hashEmail]);
         if(existingUser.rows[0]){
+            console.log("This one")
             return res.status(409).json({ message: 'Register Invalid'});
         }
 
