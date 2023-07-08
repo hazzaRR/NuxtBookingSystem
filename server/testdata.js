@@ -238,6 +238,36 @@ const createServices = async () => {
     }
 };
 
+const updateAvailability = async (AvailabilityObject) => {
+
+  try {
+
+    for (let index in AvailabilityObject.availability) {
+        let availability = AvailabilityObject.availability[index];
+
+        if (availability.available === false) {
+
+          const updateAvail = await pool.query("UPDATE employee_availability SET starttime = $1, endtime = $2, available = $3 WHERE employeeid = $4 AND DayOfWeek = $5", [null, null, availability.available, availability.EmployeeID, availability.DayOfWeek]);
+      }
+      else {
+          const updateAvail = await pool.query("UPDATE employee_availability SET starttime = $1, endtime = $2, available = $3 WHERE employeeid = $4 AND DayOfWeek = $5", [availability.StartTime, availability.EndTime, availability.available, availability.EmployeeID, availability.DayOfWeek]);
+      }
+      
+    };
+
+      console.log("Availability created")
+
+      return;
+    
+} catch (error) {
+    console.error(error);
+}
+
+
+
+
+}
+
 const createAppointments = async (AppointmentObject) => {
 
     try {
@@ -325,6 +355,160 @@ const employeeObject = {
 ]
 }
 
+const AvailabilityObject = {
+  "availability": [
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Monday",
+      "StartTime": "09:00:00",
+      "EndTime": "17:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Tuesday",
+      "StartTime": "08:30:00",
+      "EndTime": "16:30:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Wednesday",
+      "StartTime": null,
+      "EndTime": null,
+      "available": false
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Thursday",
+      "StartTime": "08:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Friday",
+      "StartTime": "09:30:00",
+      "EndTime": "17:30:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Saturday",
+      "StartTime": "10:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 1,
+      "DayOfWeek": "Sunday",
+      "StartTime": null,
+      "EndTime": null,
+      "available": false
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Monday",
+      "StartTime": null,
+      "EndTime": null,
+      "available": false
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Tuesday",
+      "StartTime": "09:00:00",
+      "EndTime": "17:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Wednesday",
+      "StartTime": "08:30:00",
+      "EndTime": "16:30:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Thursday",
+      "StartTime": "08:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Friday",
+      "StartTime": "09:30:00",
+      "EndTime": "17:30:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Saturday",
+      "StartTime": "10:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 2,
+      "DayOfWeek": "Sunday",
+      "StartTime": null,
+      "EndTime": null,
+      "available": false
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Monday",
+      "StartTime": "09:00:00",
+      "EndTime": "17:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Tuesday",
+      "StartTime": "08:30:00",
+      "EndTime": "16:30:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Wednesday",
+      "StartTime": "10:00:00",
+      "EndTime": "18:00:00",
+      "available": false
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Thursday",
+      "StartTime": "08:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Friday",
+      "StartTime": "09:30:00",
+      "EndTime": "17:30:00",
+      "available": false
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Saturday",
+      "StartTime": "10:00:00",
+      "EndTime": "16:00:00",
+      "available": true
+    },
+    {
+      "EmployeeID": 3,
+      "DayOfWeek": "Sunday",
+      "StartTime": "12:00:00",
+      "EndTime": "18:00:00",
+      "available": true
+    }
+  ]
+
+
+}
+
 const AppointmentObject = {   
     "appointments": [
             {
@@ -354,7 +538,7 @@ const AppointmentObject = {
               "employeeID": 3,
               "serviceID": 3
             }
-        ]
+        ],
 }
 
 const main = async () => {
@@ -363,6 +547,7 @@ const main = async () => {
       await createAdmins(AdminObject);
       await createEmployees(employeeObject);
       await createClient(ClientObject);
+      await updateAvailability(AvailabilityObject);
       await createServices();
       await createAppointments(AppointmentObject);
       process.exit(0);

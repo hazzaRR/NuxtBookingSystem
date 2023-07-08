@@ -140,8 +140,6 @@ router.put("/update-availability", authenticateEmployee, validate_csrfToken, asy
     try {
         for (let i = 0; i < availability.length; i++) {
 
-            console
-
             if (availability[i].available === false) {
 
                 const updateAvail = await pool.query("UPDATE employee_availability SET starttime = $1, endtime = $2, available = $3 WHERE employeeid = $4 AND DayOfWeek = $5", [null, null, availability[i].available, user.id, availability[i].dayofweek]);
