@@ -207,6 +207,208 @@ if (process.env.DATABASE === 'test') {
     });
 
 
+    describe('testing auth on admin account', () => {
 
+      let testSession = null;
+      let csrfToken;
+      let sessionID;
+
+      before(async () => {
+      testSession = session(app);
+      const response = await testSession
+      .post('/login')
+      .send({ email: 'harryR', password: 'password'})
+      .expect(200);
+      
+      const setCookieHeader = response.headers['set-cookie'];
+      sessionID = setCookieHeader.find(cookie => cookie.includes('auth_token='));
+      
+      csrfToken = await testSession
+      .get('/csrf-token')
+      .set('Cookie', sessionID)
+      .expect(200)
+      .then((res) => res.body.csrf_token);
+    });
+
+    after(async () => {
+      const response = await testSession
+      .get('/logout')
+      .set('Cookie', sessionID)
+      .expect(200)
+    });
+
+    it('successful auth check on admin', async () => {
+      testSession = session(app);
+      const response = await testSession
+      .get('/auth-check')
+      .set('Cookie', sessionID)
+      .expect(200);
+
+      expect(response.body.message).to.equal("Authenticated");
+      expect(response.body.user_type).to.equal('admin');
+    
+
+    });
+
+    it('unsuccessful auth check on admin, no auth token', async () => {
+      testSession = session(app);
+      const response = await testSession
+      .get('/auth-check')
+      .expect(401);
+
+      expect(response.body.message).to.equal("Unable to authenticate session");
+    
+
+    });
+
+    it('unsuccessful auth check on admin, invalid auth token', async () => {
+      testSession = session(app);
+      const response = await testSession
+      .get('/auth-check')
+      .set('Cookie', 'auth_token=33fc8d37-bf94-4039-b735-a4a9aec82131')
+      .expect(403);
+
+      expect(response.body.message).to.equal("Unable to authenticate session");
+    
+
+    });
+
+});
+
+describe('testing auth on client account', () => {
+
+  let testSession = null;
+  let csrfToken;
+  let sessionID;
+
+  before(async () => {
+  testSession = session(app);
+  const response = await testSession
+  .post('/login')
+  .send({ email: 'test@email.com', password: 'testPassword10!'})
+  .expect(200);
+  
+  const setCookieHeader = response.headers['set-cookie'];
+  sessionID = setCookieHeader.find(cookie => cookie.includes('auth_token='));
+  
+  csrfToken = await testSession
+  .get('/csrf-token')
+  .set('Cookie', sessionID)
+  .expect(200)
+  .then((res) => res.body.csrf_token);
+});
+
+after(async () => {
+  const response = await testSession
+  .get('/logout')
+  .set('Cookie', sessionID)
+  .expect(200)
+});
+
+it('successful auth check on client', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .set('Cookie', sessionID)
+  .expect(200);
+
+  expect(response.body.message).to.equal("Authenticated");
+  expect(response.body.user_type).to.equal('client');
+
+
+});
+
+it('unsuccessful auth check on client, no auth token', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .expect(401);
+
+  expect(response.body.message).to.equal("Unable to authenticate session");
+
+
+});
+
+it('unsuccessful auth check on client, invalid auth token', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .set('Cookie', 'auth_token=33fc8d37-bf94-4039-b735-a4a9aec82131')
+  .expect(403);
+
+  expect(response.body.message).to.equal("Unable to authenticate session");
+
+
+});
+
+});
+
+describe('testing auth on employee account', () => {
+
+  let testSession = null;
+  let csrfToken;
+  let sessionID;
+
+  before(async () => {
+  testSession = session(app);
+  const response = await testSession
+  .post('/login')
+  .send({ email: 'test_employee@email.com', password: 'testPassword10!'})
+  .expect(200);
+  
+  const setCookieHeader = response.headers['set-cookie'];
+  sessionID = setCookieHeader.find(cookie => cookie.includes('auth_token='));
+  
+  csrfToken = await testSession
+  .get('/csrf-token')
+  .set('Cookie', sessionID)
+  .expect(200)
+  .then((res) => res.body.csrf_token);
+});
+
+after(async () => {
+  const response = await testSession
+  .get('/logout')
+  .set('Cookie', sessionID)
+  .expect(200)
+});
+
+it('successful auth check on employee', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .set('Cookie', sessionID)
+  .expect(200);
+
+  expect(response.body.message).to.equal("Authenticated");
+  expect(response.body.user_type).to.equal('employee');
+
+
+});
+
+it('unsuccessful auth check on employee, no auth token', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .expect(401);
+
+  expect(response.body.message).to.equal("Unable to authenticate session");
+
+
+});
+
+it('unsuccessful auth check on employee, invalid auth token', async () => {
+  testSession = session(app);
+  const response = await testSession
+  .get('/auth-check')
+  .set('Cookie', 'auth_token=33fc8d37-bf94-4039-b735-a4a9aec82131')
+  .expect(403);
+
+  expect(response.body.message).to.equal("Unable to authenticate session");
+
+
+});
+
+});
 
 }
