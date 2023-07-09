@@ -411,4 +411,39 @@ it('unsuccessful auth check on employee, invalid auth token', async () => {
 
 });
 
+describe('GET /available-employees', () => {
+  let testSession = null;
+  let csrfToken;
+  let sessionID;
+
+
+  it('should return available employees for a given date', async () => {
+    const response = await session(app)
+      .get('/available-employees')
+      .query({ date: '2023-07-09' }); // Replace with the desired date
+
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal('Employees Successfully fetched');
+    expect(response.body.employees).to.be.an('array');
+  });
+
+});
+
+describe('GET /available-employees', () => {
+  let testSession = null;
+  let csrfToken;
+  let sessionID;
+
+
+  it('Get /services', async () => {
+    const response = await session(app)
+      .get('/services')
+
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal("Services fetched successfully");
+    expect(response.body.services).to.be.an('array');
+  });
+
+});
+
 }

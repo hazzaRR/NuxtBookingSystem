@@ -290,7 +290,7 @@ const createAppointments = async (AppointmentObject) => {
 };
 
 
-const ClientObject = {
+const userObject = {
     "clients": [
         {
           "ID": 1,
@@ -316,44 +316,37 @@ const ClientObject = {
           "password": "abc789",
           "telephone": "555-9012"
         }
-      ]
-};
-
-
-const AdminObject = {
+    ],
     "admins": [
         {
             "username": "harryR",
             "password": "password",
         }
-]
-}
-
-const employeeObject = {
+    ],
     "employees": [
+      {
+          "firstname": "John",
+          "surname": "Doe",
+          "email": "johndoe@example.com",
+          "password": "mypassword",
+          "telephone": "1234567890"
+        },
         {
-            "firstname": "John",
-            "surname": "Doe",
-            "email": "johndoe@example.com",
-            "password": "mypassword",
-            "telephone": "1234567890"
-          },
-          {
-            "firstname": "Jane",
-            "surname": "Smith",
-            "email": "janesmith1@example.com",
-            "password": "secretpass",
-            "telephone": "9876543210"
-          },
-          {
-            "firstname": "Alice",
-            "surname": "Johnson",
-            "email": "alicejohnson@example.com",
-            "password": "pass123",
-            "telephone": "5551234567"
-          }
-]
-}
+          "firstname": "Jane",
+          "surname": "Smith",
+          "email": "janesmith1@example.com",
+          "password": "secretpass",
+          "telephone": "9876543210"
+        },
+        {
+          "firstname": "Alice",
+          "surname": "Johnson",
+          "email": "alicejohnson@example.com",
+          "password": "pass123",
+          "telephone": "5551234567"
+        }
+    ]
+};
 
 const AvailabilityObject = {
   "availability": [
@@ -505,8 +498,6 @@ const AvailabilityObject = {
       "available": true
     }
   ]
-
-
 }
 
 const AppointmentObject = {   
@@ -544,9 +535,9 @@ const AppointmentObject = {
 const main = async () => {
     try {
       await createTables();
-      await createAdmins(AdminObject);
-      await createEmployees(employeeObject);
-      await createClient(ClientObject);
+      await createAdmins(userObject);
+      await createEmployees(userObject);
+      await createClient(userObject);
       await updateAvailability(AvailabilityObject);
       await createServices();
       await createAppointments(AppointmentObject);
