@@ -446,4 +446,43 @@ describe('GET /available-employees', () => {
 
 });
 
+describe('GET /available-slots', () => {
+  it('should return available time slots for a given date, employee ID, and duration', async () => {
+    const response = await session(app)
+      .get('/available-slots')
+      .query({ date: '2023-07-08', id: 1, duration: '30' });
+
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal('Slots fetched successfully');
+    expect(response.body.availability).to.be.an('array');
+    expect(response.body.availability).to.have.lengthOf(24);
+    // Add more assertions to validate the response body or other conditions as needed
+  });
+
+  it('should return no availability if the employee is blocked for that day', async () => {
+    const response = await session(app)
+      .get('/available-slots')
+      .query({ date: '2023-07-09', id: 1, duration: '30' }); 
+
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal('No availability for that day');
+    expect(response.body.availability).to.be.an('array');
+    expect(response.body.availability).to.have.lengthOf(0);
+    // Add more assertions to validate the response body or other conditions as needed
+  });
+
+  it('should return no availability if the employee has no regular or one-off availability for that day', async () => {
+    const response = await session(app)
+      .get('/available-slots')
+      .query({ date: '2023-07-09', id: 1, duration: '30' });
+
+    expect(response.status).to.equal(200);
+    expect(response.body.message).to.equal('No availability for that day');
+    expect(response.body.availability).to.be.an('array');
+    expect(response.body.availability).to.have.lengthOf(0);
+    // Add more assertions to validate the response body or other conditions as needed
+  });
+});
+
+
 }

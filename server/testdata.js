@@ -263,6 +263,27 @@ const updateAvailability = async (AvailabilityObject) => {
     console.error(error);
 }
 
+}
+
+const createBlockedDate = async (object) => {
+
+  try {
+
+    for (let index in object.blockedDays) {
+        let blockedDate = object.blockedDays[index];
+
+          const updateAvail = await pool.query("INSERT INTO employee_blocked_days (employeeid, blockedDate) VALUES ($1, $2)", [blockedDate.EmployeeID, blockedDate.blockedDate]);
+      
+    };
+
+      console.log("Blocked date created")
+
+      return;
+    
+} catch (error) {
+    console.error(error);
+}
+
 
 
 
@@ -497,6 +518,12 @@ const AvailabilityObject = {
       "EndTime": "18:00:00",
       "available": true
     }
+  ],
+  "blockedDays": [
+    {
+      "EmployeeID": 1,
+      "blockedDate": "2023-07-06"
+    }
   ]
 }
 
@@ -539,6 +566,7 @@ const main = async () => {
       await createEmployees(userObject);
       await createClient(userObject);
       await updateAvailability(AvailabilityObject);
+      await createBlockedDate(AvailabilityObject);
       await createServices();
       await createAppointments(AppointmentObject);
       process.exit(0);

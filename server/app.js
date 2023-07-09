@@ -226,50 +226,6 @@ app.get('/logout', async (req, res) => {
     }
 });
 
-app.post("/employee/register", async (req, res) => {
-    try {
-        let {email, password, firstname, surname} = req.body;
-
-        console.log("we got here");
-
-        //Returns random delay to combat against account enuneration
-        // await delay(500, 1500);
-
-
-        // Encrypts personal details with cryptojs
-        const hashEmail = CryptoJS.AES.encrypt(email, crykey,{ iv: iv }).toString();
-        
-        // Searches into database based on username and email and returns status code if existing user already exists
-        const existingUser = await pool.query("SELECT * FROM client WHERE email = $1 UNION SELECT * FROM employee WHERE email = $1", [hashEmail]);
-        if(existingUser.rows[0]){
-            return res.status(409).json({ message: 'Register Invalid' });
-        }
-
-        //Hashes password and inserts into database, if any error in inserting then register invalid is returned.
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const account = await pool.query("INSERT INTO employee (email,password, firstname, surname) VALUES($1, $2, $3, $4) RETURNING *", [hashEmail,hashedPassword, firstname, surname]);
-        const info = await pool.query('SELECT * FROM employee WHERE email = $1', [hashEmail])
-        if(!info.rows[0]){
-            return res.status(409).json({ message: 'Register Invalid' });
-        }
-
-        const token = uuidv4();
-        const crsf_token = uuidv4();
-        const currentDate = new Date();
-        // Add 2 hours to the current time
-        const expiry_time = new Date(currentDate.getTime() + 2 * 60 * 60 * 1000);
-        const createSession = await pool.query('INSERT INTO user_sessions (session_id, expiry_time, user_id, user_type, csrf_token)  VALUES($1, $2, $3, $4, $5) RETURNING *', [token, expiry_time, info.rows[0].id, "client", crsf_token])
-
-        res.cookie('auth_token', token, { maxAge: 2 * 60 * 60 * 1000, httpOnly: true, secure: true}); // Set cookie to expire in 10 minutes
-        res.json({ message: 'Log in successful', user_type: createSession.rows[0].user_type });
-
-    } catch (err) {
-        console.error(err.message);
-        res.json({message:"Error creating user"});
-    }
-
-});
-
 app.get("/services", async (req, res) => {
 
 
@@ -312,23 +268,6 @@ app.get("/available-employees", async (req, res) => {
     }
 });
 
-// app.get("/available-slots", async (req, res) => {
-
-
-//     try {
-
-//         const {date, id} = req.query;
-
-//         const getAvailability = await pool.query("SELECT employee_availability.starttime, employee_availability.endtime FROM employee_availability INNER JOIN employee ON employee_availability.employeeid = employee.id WHERE employee_availability.AvailabilityDate = $1 AND employee_availability.employeeid = $2 AND employee_availability.available = $3", [date, id, true]);
-
-
-//         return res.json({message:"Slots fetched successfully", availability: getAvailability.rows})
-        
-//     } catch (error) {
-//         return res.status(500).json({message:"Error accessing database"});
-//     }
-// });
-
 app.get("/available-slots", async (req, res) => {
 
 
@@ -343,7 +282,7 @@ app.get("/available-slots", async (req, res) => {
         const checkIfBlocked = await pool.query("SELECT * FROM employee_blocked_days WHERE employeeID = $1 AND blockedDate = $2", [id, dateToFind]);
 
         if (checkIfBlocked.rowCount > 0) {
-            return res.status(204).json({message: "No availability for that day", availability: []});
+            return res.status(200).json({message: "No availability for that day", availability: []});
         }
 
         let getAvailability; 
@@ -351,18 +290,17 @@ app.get("/available-slots", async (req, res) => {
         getAvailability = await pool.query('SELECT StartTime, EndTime FROM employee_one_off_availability WHERE EmployeeID = $1 AND AdjustedDate = $2', [id, date]);
 
         if (getAvailability.rowCount === 0) {
+
             getAvailability = await pool.query('SELECT StartTime, EndTime, available FROM employee_availability WHERE EmployeeID = $1 AND DayOfWeek = $2', [id, weekday[dateToFind.getDay()]]);
 
             
             if (!getAvailability.rows[0].available) {
-                return res.status(204).json({message: "No availability for that day", availability: []});
+                return res.status(200).json({ message: "No availability for that day", availability: []});
             }
         };
 
 
         const availabilityRows = getAvailability.rows;
-
-        console.log(availabilityRows);
 
         const appointmentQuery = await pool.query('SELECT StartTime, EndTime FROM appointment WHERE employeeID = $1 AND appDate = $2', [id, dateToFind]);
 
@@ -394,7 +332,6 @@ app.get("/available-slots", async (req, res) => {
                 (slotEndTime > appointmentStartTime && slotEndTime <= appointmentEndTime) ||
                 (currentSlotTime <= appointmentStartTime && slotEndTime >= appointmentEndTime)
                 ) {
-                    console.log(currentSlotTime);
                 slotOverlaps = true;
                 break;
                 }
@@ -411,9 +348,6 @@ app.get("/available-slots", async (req, res) => {
             currentSlotTime.setMinutes(currentSlotTime.getMinutes() + 15);
             }
         }
-
-        console.log(availableTimeSlots);
-
         return res.json({message:"Slots fetched successfully", availability: availableTimeSlots});
         
     } catch (error) {
